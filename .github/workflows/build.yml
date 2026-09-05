@@ -19,6 +19,11 @@ jobs:
     # on Linux, so this has to run on a macOS runner even though Mac minutes
     # cost roughly ten times what Linux ones do. See docs/architecture.md.
     runs-on: macos-latest
+    # A hung simulator would otherwise hold a Mac runner for GitHub's six-hour
+    # default. At roughly ten times Linux cost, that is a bill rather than a
+    # delay. Thirty minutes is well clear of a normal run (about a minute today)
+    # while still capping the damage.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
