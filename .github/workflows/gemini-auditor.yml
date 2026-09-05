@@ -66,20 +66,19 @@ jobs:
 
           PAYLOAD=$(jq -n --arg msg "$PROMPT" '{contents: [{parts: [{text: $msg}]}]}')
 
-          # -w captures the status separately so an HTTP error is a failure
-          # rather than a body that gets printed and passed over. The old
-          # version had no -f and no status check, so a 404 error page counted
-          # as a successful audit and the check went green having done nothing.
-          HTTP_BODY=$(mktemp)
-          HTTP_CODE=$(curl -s -o "$HTTP_BODY" -w '%{http_code}' \
+          # --fail-with-body makes curl exit non-zero on an HTTP error while
+          # still printing the response, so a 404 cannot be mistaken for an
+          # audit. The original version had neither, which is why a retired
+          # model returned "not found" and the check went green for hours.
+          # Captured in an `if` rather than left to `set -e` so the failure path
+          # can still tell you which models the key can actually reach.
+          if ! RESPONSE=$(curl -s --fail-with-body \
             -X POST "https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent" \
             -H "Content-Type: application/json" \
             -H "x-goog-api-key: ${GEMINI_API_KEY}" \
-            -d "$PAYLOAD")
-
-          if [ "$HTTP_CODE" != "200" ]; then
-            echo "::error::Gemini returned HTTP $HTTP_CODE for model '${GEMINI_MODEL}'."
-            cat "$HTTP_BODY"
+            -d "$PAYLOAD"); then
+            echo "::error::Gemini rejected the request for model '${GEMINI_MODEL}'."
+            echo "$RESPONSE"
             echo
             echo "Models this key can actually reach:"
             curl -s "https://generativelanguage.googleapis.com/v1beta/models" \
@@ -89,15 +88,15 @@ jobs:
             exit 1
           fi
 
-          AUDIT_TEXT=$(jq -r '.candidates[0].content.parts[0].text // empty' < "$HTTP_BODY")
+          AUDIT_TEXT=$(printf '%s' "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // empty')
 
           if [ -z "$AUDIT_TEXT" ]; then
             # Name the reason when Gemini gives one. A blocked or truncated
             # answer returns 200 with no text, and "no usable text" alone sends
             # you looking for a bug that is not there.
-            FINISH_REASON=$(jq -r '.candidates[0].finishReason // "not given"' < "$HTTP_BODY")
+            FINISH_REASON=$(printf '%s' "$RESPONSE" | jq -r '.candidates[0].finishReason // "not given"')
             echo "::error::Gemini returned 200 but no usable text (finishReason: ${FINISH_REASON})."
-            cat "$HTTP_BODY"
+            echo "$RESPONSE"
             exit 1
           fi
 
