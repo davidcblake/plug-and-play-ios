@@ -45,8 +45,14 @@ several shipped apps at once.
 > Would at least three of the four planned apps want this — travel, scripture study,
 > fitness, student notes? Name them, and say what each would use it for.
 
-If you can only name one or two, it belongs in those apps, not here. Test it hardest
-against fitness: it is numbers over time, while the others are notes attached to a thing.
+Answered in writing, in the pull request. If you can only name one or two, it belongs in
+those apps, not here — unless you write a decision record arguing why it belongs anyway.
+Test it hardest against fitness: it is numbers over time, while the others are notes
+attached to a thing.
+
+**`AGENTS.md` is where this rule lives**, including how to apply it and when the
+exception holds. What you are reading is a summary for anyone arriving at the repository,
+not a second copy to be kept in step.
 
 ## Built with
 
