@@ -8,10 +8,15 @@ Last updated: 2026-09-05
 
 ## Phase 0 — Foundation skeleton ⏳ in progress
 
-- [ ] Swift package with eight modules, each with a test target and a passing test
-- [ ] `AGENTS.md`, `CLAUDE.md`, and the docs in this folder
-- [ ] Decision records for the choices already made
-- [ ] Build workflow that compiles and tests on a macOS runner
+- [ ] Swift package with eight modules, each with a test target and a passing test —
+      the package and the tests are written, but nothing on this machine can run
+      `swift build`/`swift test` (no Swift toolchain, and Apple's frameworks don't exist
+      on Linux anyway). Stays unchecked until the build workflow below actually goes
+      green on a real macOS runner.
+- [x] `AGENTS.md`, `CLAUDE.md`, and the docs in this folder
+- [x] Decision records for the choices already made
+- [ ] Build workflow that compiles and tests on a macOS runner — workflow is written
+      (`.github/workflows/build.yml`), not yet confirmed by a passing run
 - [ ] Branch protection on `main` (see `docs/security.md`)
 
 **Done means:** an empty app can depend on this package and it compiles.
