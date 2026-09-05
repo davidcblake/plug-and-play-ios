@@ -13,9 +13,10 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
+      # No guard on a missing XAI_API_KEY. The key exists now, and if it is ever
+      # removed or the xAI account runs dry, this check going red is true and worth
+      # seeing — the last attempt to hide that case broke the workflow silently.
       - name: Grok code review
-        # Skip cleanly instead of failing red until XAI_API_KEY is added as a repo secret.
-        if: ${{ secrets.XAI_API_KEY != '' }}
         uses: tarmojussila/xai-code-review@0a0ec8e6ae59ed29819ac73ba1b8a983f40ca255 # v0.1.0
         with:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}

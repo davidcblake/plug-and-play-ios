@@ -16,3 +16,20 @@ real code.
   something you wrote, stop and hand it off.
 - Prefer the boring, obvious solution. Someone who is not an engineer has to be able to
   follow what you built six months from now.
+
+## gstack
+
+gstack adds skills like `/ship`, `/qa`, `/investigate`, `/retro` and `/autoplan`. They
+are available only when gstack is installed on whatever machine is running your AI tool:
+
+```
+git clone --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
+cd ~/.claude/skills/gstack && ./setup
+```
+
+If it isn't installed, carry on without it. Nothing in this repository depends on it.
+
+**Do not use gstack's review commands** — `/review`, `/plan-eng-review`,
+`/plan-ceo-review`, `/design-review` — on work you wrote. That is Claude reviewing
+Claude, which is the one thing `AGENTS.md` says never to do. Review belongs to Grok and
+Codex. Reasoning in `docs/decisions/0005-gstack.md`.
