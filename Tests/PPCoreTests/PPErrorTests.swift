@@ -10,7 +10,11 @@ private struct SyncRefused: PPError {
     let logMessage = "CKError.permissionFailure on private database"
 }
 
-private struct Underlying: Error, Sendable {}
+/// Gives `String(describing:)` something stable to produce, so the assertions
+/// below test intent rather than how the compiler happens to render a type name.
+private struct Underlying: Error, Sendable, CustomStringConvertible {
+    let description = "the underlying failure"
+}
 
 @Suite("PPError")
 struct PPErrorTests {
@@ -41,8 +45,20 @@ struct UnexpectedErrorTests {
     func describesUnderlyingInLog() {
         let error = UnexpectedError(underlying: Underlying())
 
-        #expect(error.logMessage.contains("Underlying"))
+        #expect(error.logMessage == "the underlying failure")
         #expect(error.userMessage == "Something went wrong. Please try again.")
+    }
+
+    @Test(
+        "A blank log message falls through instead of recording nothing",
+        arguments: ["", "   ", "\n\t"]
+    )
+    func blankLogMessageFallsThrough(blank: String) {
+        let wrapping = UnexpectedError(logMessage: blank, underlying: Underlying())
+        #expect(wrapping.logMessage == "the underlying failure")
+
+        let bare = UnexpectedError(userMessage: "Couldn't save.", logMessage: blank)
+        #expect(bare.logMessage == "Couldn't save.")
     }
 
     @Test("An explicit log message wins over the wrapped error's description")

@@ -45,8 +45,18 @@ public struct UnexpectedError: PPError {
     ) {
         self.userMessage = userMessage
         self.underlying = underlying
-        self.logMessage = logMessage
+        // A blank log message is worse than no log message: it looks like the
+        // error was recorded when nothing usable was. Treat it as absent and
+        // fall through to something that actually says what happened.
+        self.logMessage = logMessage?.nonBlank
             ?? underlying.map { String(describing: $0) }
             ?? userMessage
+    }
+}
+
+extension String {
+    /// `nil` when this is empty or nothing but whitespace.
+    fileprivate var nonBlank: String? {
+        allSatisfy(\.isWhitespace) ? nil : self
     }
 }
