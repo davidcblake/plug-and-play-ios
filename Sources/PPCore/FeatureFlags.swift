@@ -76,15 +76,11 @@ public struct ConfigurationFeatureFlags: FeatureFlagSource {
     }
 
     public func override(for flag: FeatureFlag) -> Bool? {
-        guard let raw = configuration.value(for: ConfigurationKey(flag.name)) else {
-            return nil
-        }
-        switch raw.lowercased() {
-        case "true", "yes", "1": return true
-        case "false", "no", "0": return false
-        // Present but unreadable is treated as no opinion, so a typo leaves the
-        // flag at its default rather than silently forcing it off.
-        default: return nil
-        }
+        // Absent, or present but unreadable, both come back nil — so a typo
+        // leaves the flag at its default rather than silently forcing it off.
+        // Parsing lives in one place (`asConfiguredBool`) so this and
+        // `ConfigurationSource.bool(_:default:)` cannot drift apart on what
+        // counts as "yes".
+        configuration.value(for: ConfigurationKey(flag.name))?.asConfiguredBool
     }
 }

@@ -59,6 +59,30 @@ struct ConfigurationTests {
         #expect(config.bool("nonsense", default: false) == false)
     }
 
+    @Test("Tolerates whitespace around numbers and yes-or-nos")
+    func toleratesSurroundingWhitespace() {
+        // A build script writing a value into Info.plist can easily leave a
+        // stray space. A value a person can plainly read should not be treated
+        // as unreadable.
+        let padded = InMemoryConfiguration([
+            "retries": "  3  ",
+            "enabled": " true\n",
+        ])
+
+        #expect(padded.int("retries", default: 0) == 3)
+        #expect(padded.bool("enabled", default: false) == true)
+    }
+
+    @Test("Text is returned exactly as configured, whitespace and all")
+    func textIsNotTrimmed() {
+        // Deliberately different from int and bool: this carries a value
+        // through rather than parsing a token, so it does not get to decide
+        // that the surrounding spaces were a mistake.
+        let padded = InMemoryConfiguration(["greeting": "  hello  "])
+
+        #expect(padded.string("greeting", default: "") == "  hello  ")
+    }
+
     @Test("The empty source has no opinion about anything")
     func emptySourceHasNoOpinions() {
         let empty = EmptyConfiguration()

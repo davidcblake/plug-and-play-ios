@@ -13,7 +13,7 @@ private struct LogSinkKey: EnvironmentKey {
     static let defaultValue: any LogSink = NoOpLogSink()
 }
 
-private struct ConfigurationKeyKey: EnvironmentKey {
+private struct ConfigurationSourceKey: EnvironmentKey {
     /// No opinion about anything, so every reader gets its own default.
     static let defaultValue: any ConfigurationSource = EmptyConfiguration()
 }
@@ -32,8 +32,8 @@ extension EnvironmentValues {
 
     /// Where this part of the view tree reads its settings.
     public var configuration: any ConfigurationSource {
-        get { self[ConfigurationKeyKey.self] }
-        set { self[ConfigurationKeyKey.self] = newValue }
+        get { self[ConfigurationSourceKey.self] }
+        set { self[ConfigurationSourceKey.self] = newValue }
     }
 
     /// Which features are switched on for this part of the view tree.
