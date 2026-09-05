@@ -6,7 +6,7 @@ device where that applies, not "the code is written."
 
 Last updated: 2026-09-05
 
-## Phase 0 — Foundation skeleton ⏳ in progress
+## Phase 0 — Foundation skeleton ✅ done (2026-09-05)
 
 - [x] Swift package with eight modules, each with a test target and a passing test —
       confirmed by a green run of `Build and Test` on a macOS runner, PR #2
@@ -14,13 +14,21 @@ Last updated: 2026-09-05
 - [x] `AGENTS.md`, `CLAUDE.md`, and the docs in this folder
 - [x] Decision records for the choices already made
 - [x] Build workflow that compiles and tests on a macOS runner — same run as above
-- [ ] Branch protection on `main` (see `docs/security.md`)
+- [x] Branch protection on `main` (see `docs/security.md`) — verified by a direct push
+      being rejected with `GH013: Repository rule violations found`, not by reading the
+      settings page. The first two attempts went straight through: the ruleset was
+      Active but its target branch list was empty, so it applied to nothing.
 
 **Done means:** an empty app can depend on this package and it compiles.
 
-## Phase 1 — The pieces that hold data ⬜
+## Phase 1 — The pieces that hold data ⏳ in progress
 
 - [ ] `PPCore` — logging, errors, configuration, feature flags
+      - [x] Logging: `LogSink` seam, `SystemLogSink` over Apple's unified logging,
+            `RecordingLogSink` for tests, injected through the SwiftUI environment
+      - [x] Errors: `PPError`, splitting what a person is told from what the log records
+      - [ ] Configuration
+      - [ ] Feature flags
 - [ ] `PPData` — SwiftData stack, `SyncProvider` protocol, CloudKit adapter, migrations
 - [ ] `PPDesign` — colors, typography, spacing, core components
 
@@ -80,5 +88,5 @@ fix the foundation rather than declaring victory.
 
 | Blocker | Blocks | Status |
 |---|---|---|
-| Apple Developer Program enrollment | Phases 2, 3, 4 | Not started — **start immediately**, approval is unpredictable and can take weeks |
+| Apple Developer Program enrollment | Phases 2, 3, 4 | **Application submitted 2026-09-05.** Awaiting approval; timing is unpredictable and can take weeks |
 | Small Business Program application | Phase 3 pricing | Not started |

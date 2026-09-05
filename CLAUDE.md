@@ -29,6 +29,10 @@ cd ~/.claude/skills/gstack && ./setup
 
 If it isn't installed, carry on without it. Nothing in this repository depends on it.
 
+Note that this clone tracks gstack's `main` and is pinned to nothing — you get whatever
+landed there that day. That is a deliberate, temporary choice with a review date; see
+`docs/decisions/0005-gstack.md`.
+
 **Do not use gstack's review commands** — `/review`, `/plan-eng-review`,
 `/plan-ceo-review`, `/design-review` — on work you wrote. That is Claude reviewing
 Claude, which is the one thing `AGENTS.md` says never to do. Review belongs to Grok and

@@ -4,7 +4,14 @@ import PackageDescription
 let package = Package(
     name: "PlugAndPlay",
     platforms: [
-        .iOS(.v18)
+        .iOS(.v18),
+        // Not a shipping target. The apps are iPhone only (decision 0004), but CI
+        // runs `swift build` / `swift test` on a Mac, which compiles for the *host*.
+        // With no macOS minimum declared, SwiftPM falls back to a default old enough
+        // that SwiftUI, os.Logger and OSAllocatedUnfairLock are all unavailable and
+        // nothing compiles. Paired with the iOS minimum rather than set lower, so a
+        // module cannot use an API on iOS that the CI build then rejects.
+        .macOS(.v15)
     ],
     products: [
         .library(name: "PPCore", targets: ["PPCore"]),
