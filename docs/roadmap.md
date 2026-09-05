@@ -6,7 +6,7 @@ device where that applies, not "the code is written."
 
 Last updated: 2026-09-05
 
-## Phase 0 — Foundation skeleton ⏳ in progress
+## Phase 0 — Foundation skeleton ✅ done (2026-09-05)
 
 - [x] Swift package with eight modules, each with a test target and a passing test —
       confirmed by a green run of `Build and Test` on a macOS runner, PR #2
