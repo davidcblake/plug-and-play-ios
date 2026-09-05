@@ -12,10 +12,14 @@ permissions:
 jobs:
   review:
     runs-on: ubuntu-latest
+    env:
+      XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
     steps:
       - name: Grok code review
-        # Skip cleanly instead of failing red until XAI_API_KEY is added as a repo secret.
-        if: ${{ secrets.XAI_API_KEY != '' }}
+        # `secrets` is not a valid context inside `if:` — GitHub rejects the whole
+        # workflow file. Mirror it into env and test that instead, so a missing key
+        # skips cleanly rather than failing red.
+        if: ${{ env.XAI_API_KEY != '' }}
         uses: tarmojussila/xai-code-review@0a0ec8e6ae59ed29819ac73ba1b8a983f40ca255 # v0.1.0
         with:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
