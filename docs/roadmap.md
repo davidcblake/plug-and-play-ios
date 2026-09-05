@@ -21,14 +21,22 @@ Last updated: 2026-09-05
 
 **Done means:** an empty app can depend on this package and it compiles.
 
+> ⚠️ **This bar has not actually been met, and the checkboxes above overstate it.** Every
+> tick is real, but they were earned by CI compiling the *package*. No app has ever
+> depended on it. The host app in `Example/` is what will prove this; until it builds and
+> runs, treat Phase 0 as done-except-for-its-own-definition.
+
 ## Phase 1 — The pieces that hold data ⏳ in progress
 
-- [ ] `PPCore` — logging, errors, configuration, feature flags
+- [x] `PPCore` — logging, errors, configuration, feature flags
       - [x] Logging: `LogSink` seam, `SystemLogSink` over Apple's unified logging,
             `RecordingLogSink` for tests, injected through the SwiftUI environment
       - [x] Errors: `PPError`, splitting what a person is told from what the log records
-      - [ ] Configuration
-      - [ ] Feature flags
+      - [x] Configuration: `ConfigurationSource` seam, `BundleConfiguration` reading
+            build-time values from `Info.plist`, `InMemoryConfiguration` for tests
+      - [x] Feature flags: `FeatureFlagSource` seam, defaults carried by the flag,
+            `ConfigurationFeatureFlags` so a flag flips from a shipped setting with no
+            server involved
 - [ ] `PPData` — SwiftData stack, `SyncProvider` protocol, CloudKit adapter, migrations
 - [ ] `PPDesign` — colors, typography, spacing, core components
 
