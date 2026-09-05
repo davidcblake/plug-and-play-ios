@@ -29,26 +29,35 @@ jobs:
           swift --version
           xcodebuild -version
 
-      # Temporary. Reports what this runner actually offers so the move from
-      # `swift build` (which compiles for macOS) to `xcodebuild` against an iOS
-      # simulator can be written from facts rather than guesses. Removed in the
-      # commit that makes that switch.
-      - name: What does this runner have?
+      - name: Choose an iOS simulator
+        id: simulator
         run: |
-          echo "===== schemes xcodebuild sees in this package ====="
-          xcodebuild -list -json || echo "(xcodebuild -list failed)"
-          echo
-          echo "===== available iPhone simulators ====="
-          xcrun simctl list devices available --json \
-            | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; [print(rt, "|", x["name"], "|", x["udid"]) for rt, xs in d.items() for x in xs if "iPhone" in x["name"]]' \
-            || echo "(simctl listing failed)"
-          echo
-          echo "===== destinations for the package ====="
-          xcodebuild -showdestinations -scheme PlugAndPlay 2>&1 | head -40 \
-            || echo "(showdestinations failed for scheme PlugAndPlay)"
+          set -euo pipefail
+          UDID=$(xcrun simctl list devices available --json \
+            | python3 .github/scripts/choose-simulator.py)
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
 
-      - name: Build
-        run: swift build
+      # `swift build` compiles for the *host*, which is macOS — a platform none
+      # of this ever ships on. Building against an iOS simulator destination
+      # tests what the apps actually run on.
+      #
+      # The scheme is PlugAndPlay-Package: Xcode generates one scheme per
+      # library product plus an aggregate carrying the `-Package` suffix. The
+      # bare package name is not a scheme, and using it fails with "workspace
+      # does not contain a scheme named PlugAndPlay", which reads like the
+      # package is broken rather than like the name is wrong.
+      - name: Build and test on iOS
+        run: |
+          set -euo pipefail
+          xcodebuild test \
+            -scheme PlugAndPlay-Package \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            -resultBundlePath TestResults.xcresult
 
-      - name: Test
-        run: swift test
+      - name: Keep the result bundle when something fails
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: test-results
+          path: TestResults.xcresult
+          retention-days: 7
