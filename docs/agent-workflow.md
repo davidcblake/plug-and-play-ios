@@ -4,9 +4,10 @@ Four AI helpers work on this project: Claude, Codex, Gemini and Grok. This is ho
 moves between them without anyone copying and pasting.
 
 **Current status (2026-09-05): Claude, Grok and Gemini are connected. Codex is not.**
-Claude via `.github/workflows/claude.yml`, Grok via `grok-review.yml`, Gemini via
-`gemini-auditor.yml`. Codex has a seat below but nothing wakes it — its account ran out
-of credit, and no workflow was ever written for it.
+Claude via `.github/workflows/claude.yml`, Grok via
+`.github/workflows/grok-review.yml`, Gemini via
+`.github/workflows/gemini-auditor.yml`. Codex has a seat below but nothing wakes it —
+its account ran out of credit, and no workflow was ever written for it.
 
 Two honest limits on what is wired up:
 

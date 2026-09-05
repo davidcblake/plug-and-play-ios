@@ -92,7 +92,11 @@ jobs:
           AUDIT_TEXT=$(jq -r '.candidates[0].content.parts[0].text // empty' < "$HTTP_BODY")
 
           if [ -z "$AUDIT_TEXT" ]; then
-            echo "::error::Gemini returned 200 but no usable text."
+            # Name the reason when Gemini gives one. A blocked or truncated
+            # answer returns 200 with no text, and "no usable text" alone sends
+            # you looking for a bug that is not there.
+            FINISH_REASON=$(jq -r '.candidates[0].finishReason // "not given"' < "$HTTP_BODY")
+            echo "::error::Gemini returned 200 but no usable text (finishReason: ${FINISH_REASON})."
             cat "$HTTP_BODY"
             exit 1
           fi
