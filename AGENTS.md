@@ -53,6 +53,11 @@ foundation work — a family trip, a family study, a study group — and the fit
 almost certainly never wants it. A rule demanding all four would push genuine
 foundation out.
 
+**If the planned apps ever change, this rule has to be re-derived, not patched.** It
+names four specific apps and leans on exactly one of them being a different shape. Drop
+one, add one, and both the count and which app is the odd one out may be wrong. See
+`docs/decisions/0006-widen-the-foundation-test.md`.
+
 ---
 
 ## Decisions already made — implement these, do not reopen them
