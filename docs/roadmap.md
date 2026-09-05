@@ -18,9 +18,14 @@ Last updated: 2026-09-05
 
 **Done means:** an empty app can depend on this package and it compiles.
 
-## Phase 1 — The pieces that hold data ⬜
+## Phase 1 — The pieces that hold data ⏳ in progress
 
 - [ ] `PPCore` — logging, errors, configuration, feature flags
+      - [x] Logging: `LogSink` seam, `SystemLogSink` over Apple's unified logging,
+            `RecordingLogSink` for tests, injected through the SwiftUI environment
+      - [x] Errors: `PPError`, splitting what a person is told from what the log records
+      - [ ] Configuration
+      - [ ] Feature flags
 - [ ] `PPData` — SwiftData stack, `SyncProvider` protocol, CloudKit adapter, migrations
 - [ ] `PPDesign` — colors, typography, spacing, core components
 
@@ -80,5 +85,5 @@ fix the foundation rather than declaring victory.
 
 | Blocker | Blocks | Status |
 |---|---|---|
-| Apple Developer Program enrollment | Phases 2, 3, 4 | Not started — **start immediately**, approval is unpredictable and can take weeks |
+| Apple Developer Program enrollment | Phases 2, 3, 4 | **Application submitted 2026-09-05.** Awaiting approval; timing is unpredictable and can take weeks |
 | Small Business Program application | Phase 3 pricing | Not started |

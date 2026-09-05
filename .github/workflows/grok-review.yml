@@ -13,9 +13,9 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      # No guard on a missing XAI_API_KEY. The key exists now, and if it is ever
-      # removed or the xAI account runs dry, this check going red is true and worth
-      # seeing — the last attempt to hide that case broke the workflow silently.
+      # Deliberately unguarded: a missing or expired XAI_API_KEY, or an xAI account
+      # out of credits, should fail this check visibly rather than skip in silence.
+      # The last attempt to hide that case broke the workflow without anyone noticing.
       - name: Grok code review
         uses: tarmojussila/xai-code-review@0a0ec8e6ae59ed29819ac73ba1b8a983f40ca255 # v0.1.0
         with:

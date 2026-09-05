@@ -140,4 +140,10 @@ a reason, not by quietly building something different.
 *Every time something costs more than an hour to figure out, it gets written down here so
 nobody pays for it twice. Add to this list. Never delete from it.*
 
-- (empty — first entry goes here)
+- **CI builds this package for macOS 14, not iOS 18.** `swift build` / `swift test` on
+  the macOS runner compile for the *host*, and the run reports
+  `Target Platform: arm64e-apple-macos14.0` even though `Package.swift` declares
+  `.iOS(.v18)`. So anything introduced in iOS 18 / macOS 15 will not compile in CI:
+  SwiftUI's `@Entry` macro and `Synchronization.Mutex` are the two that bite first. Use
+  an explicit `EnvironmentKey` and `os.OSAllocatedUnfairLock` instead, or move testing
+  onto an iOS simulator destination, which is the real fix and a bigger job.
