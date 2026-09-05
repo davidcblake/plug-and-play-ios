@@ -56,11 +56,14 @@ someone clones it. That is a deliberate trade: an occasional missing convenience
 hook that halts work on a machine that cannot fix itself.
 
 We are also now depending on a third-party skill pack that can change under us. It is
-pinned to nothing — a fresh clone takes whatever `main` holds that day. Worth revisiting
-if it ever starts mattering more than it helps.
+pinned to nothing — a fresh clone takes whatever `main` holds that day.
 
 ## Revisit when
 
-Codex and Gemini are connected and the review seats are genuinely covered — at which
-point the argument against `/review` is unchanged, but the cost of not having it is even
-lower.
+**Pinning:** at the first gstack update that changes behaviour we relied on, or by
+2026-12-31, whichever comes first. Pin to a tag at that point. Leaving this open-ended
+is how an unpinned dependency quietly becomes permanent.
+
+**The review commands:** when Codex and Gemini are connected and the review seats are
+genuinely covered. The argument against `/review` is unchanged then, but the cost of not
+having it is even lower.
