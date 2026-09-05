@@ -19,10 +19,39 @@ college student app. Code written here runs in all of them.
 
 Before adding anything to this repository, answer this in writing, in the pull request:
 
-> **Would both a travel app and a scripture study app want this?**
+> **Would at least three of the four planned apps want this — travel, scripture study,
+> fitness, student notes? Name them, and say what each would use it for.**
 
-If no, it belongs in the individual app, not here. There is no third answer. This single
-rule is what decides whether this foundation stays useful or turns into a junk drawer.
+If you can only name one or two, the answer is no by default: it belongs in those apps.
+This rule is what decides whether this foundation stays useful or turns into a junk
+drawer.
+
+**The exception, which is deliberately expensive.** Sometimes something plainly belongs
+here and still fails the count — sharing a record between people is real foundation work
+that the fitness app will never want. When that happens, write a decision record saying
+which apps want it, why it belongs here anyway, and what it would cost to leave it out.
+Same mechanism this rulebook already uses for third-party dependencies.
+
+Do not force-fit the answer in either direction. Do not invent a use the fitness app
+would never have just to reach three, and do not push something out that obviously
+belongs here just because it only reaches two. The count is there to make you check, not
+to think for you — but skipping it needs a written reason someone else can argue with.
+
+Naming them is the part with teeth. "Would a couple of apps want this?" can be answered
+yes in your head without checking. Naming three, and what each does with it, forces you
+to actually look — and it is where you find out that two of them wanted slightly
+different things and the shared version serves neither.
+
+**Test it hardest against fitness.** Travel, scripture study and student notes are all
+the same shape underneath: notes attached to a thing, in a place or a passage or a
+lecture. Fitness is the odd one out — numbers over time. Something that fits only the
+note-shaped apps is not foundation; it is a shared feature of three similar apps, and it
+will not be there when app four needs it.
+
+Three rather than all four, deliberately. Sharing a record between people is real
+foundation work — a family trip, a family study, a study group — and the fitness app
+almost certainly never wants it. A rule demanding all four would push genuine
+foundation out.
 
 ---
 

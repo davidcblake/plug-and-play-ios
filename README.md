@@ -42,9 +42,11 @@ several shipped apps at once.
 
 ## The rule that governs what goes in
 
-> Would both a travel app and a scripture study app want this?
+> Would at least three of the four planned apps want this — travel, scripture study,
+> fitness, student notes? Name them, and say what each would use it for.
 
-If no, it belongs in the app, not here.
+If you can only name one or two, it belongs in those apps, not here. Test it hardest
+against fitness: it is numbers over time, while the others are notes attached to a thing.
 
 ## Built with
 
