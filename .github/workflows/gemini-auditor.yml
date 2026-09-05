@@ -1,31 +1,113 @@
 name: Gemini Auditor
 
 on:
-  push:
-    branches: [ main, dev ]
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  # One place to change it. Gemini 1.5 was retired and every request to it
+  # returned 404 — see the failure path below, which prints the models this key
+  # can actually reach rather than leaving you to guess the next name.
+  GEMINI_MODEL: gemini-3.5-flash
+
 jobs:
   audit:
+    # A fork PR must not reach the API key. Without this, anyone opening a pull
+    # request could run workflow code with the secret in scope.
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
-      - name: Run Gemini Auditor
+      - name: Check for Gemini key
+        id: check_key
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          curl -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "contents": [{
-              "parts": [{
-                "text": "You are acting as the Auditor per GEMINI.md and AGENTS.md. Review the recent repository changes for cross-file drift, internal inconsistencies, and Apple HIG/SDK compliance."
-              }]
-            }]
-          }'
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "::warning::GEMINI_API_KEY is not set. Skipping the audit."
+            echo "has_key=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_key=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run Gemini audit
+        if: steps.check_key.outputs.has_key == 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            DIFF_DATA=$(git diff "origin/${{ github.base_ref }}...HEAD")
+          else
+            DIFF_DATA=$(git diff HEAD~1 HEAD || true)
+          fi
+
+          if [ -z "$DIFF_DATA" ]; then
+            echo "No changes to audit."
+            exit 0
+          fi
+
+          # Kept on one line on purpose: text starting at column 0 inside a YAML
+          # block scalar ends the block and produces an invalid workflow file.
+          INSTRUCTIONS='You are the Auditor for this repository, per GEMINI.md and AGENTS.md. Your seat is cross-file drift and internal inconsistency: things only visible when looking at more than one file, or at a document next to the code it describes. Another reviewer already covers per-line bugs, so do not duplicate that. Report only what you can point at, with the file names. If you find nothing, say so plainly rather than filling space.'
+          PROMPT=$(printf '%s\n\nDiff:\n%s' "$INSTRUCTIONS" "$DIFF_DATA")
+
+          PAYLOAD=$(jq -n --arg msg "$PROMPT" '{contents: [{parts: [{text: $msg}]}]}')
+
+          # -w captures the status separately so an HTTP error is a failure
+          # rather than a body that gets printed and passed over. The old
+          # version had no -f and no status check, so a 404 error page counted
+          # as a successful audit and the check went green having done nothing.
+          HTTP_BODY=$(mktemp)
+          HTTP_CODE=$(curl -s -o "$HTTP_BODY" -w '%{http_code}' \
+            -X POST "https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent" \
+            -H "Content-Type: application/json" \
+            -H "x-goog-api-key: ${GEMINI_API_KEY}" \
+            -d "$PAYLOAD")
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::Gemini returned HTTP $HTTP_CODE for model '${GEMINI_MODEL}'."
+            cat "$HTTP_BODY"
+            echo
+            echo "Models this key can actually reach:"
+            curl -s "https://generativelanguage.googleapis.com/v1beta/models" \
+              -H "x-goog-api-key: ${GEMINI_API_KEY}" \
+              | jq -r '.models[]? | select(.supportedGenerationMethods[]? == "generateContent") | .name' \
+              || echo "(could not list models)"
+            exit 1
+          fi
+
+          AUDIT_TEXT=$(jq -r '.candidates[0].content.parts[0].text // empty' < "$HTTP_BODY")
+
+          if [ -z "$AUDIT_TEXT" ]; then
+            echo "::error::Gemini returned 200 but no usable text."
+            cat "$HTTP_BODY"
+            exit 1
+          fi
+
+          echo "### Gemini Audit Findings ###"
+          echo "$AUDIT_TEXT"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            {
+              echo "## 🔍 Gemini (the Auditor)"
+              echo
+              echo "$AUDIT_TEXT"
+              echo
+              echo "---"
+              echo "_Cross-file drift and consistency only. Per-line review is Grok's seat._"
+            } > audit-comment.md
+            gh pr comment "${{ github.event.pull_request.number }}" --body-file audit-comment.md
+          fi
