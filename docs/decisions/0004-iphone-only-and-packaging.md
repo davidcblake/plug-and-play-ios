@@ -50,7 +50,11 @@ repository. Real friction, and worth it.
 
 Nothing app-specific goes in the foundation. The test, in the pull request, every time:
 
-> Would both a travel app and a scripture study app want this?
+> Would at least three of the four planned apps want this — travel, scripture study,
+> fitness, student notes? Name them, and say what each would use it for.
 
-If no, it belongs in the app. This is what stops the foundation turning into a junk
-drawer, which is how shared libraries usually die.
+If you can only name one or two, it belongs in those apps. This is what stops the
+foundation turning into a junk drawer, which is how shared libraries usually die.
+
+*Amended 2026-09-05 — this originally asked only about travel and scripture study. See
+`docs/decisions/0006-widen-the-foundation-test.md` for why it was widened.*
