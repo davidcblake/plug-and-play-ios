@@ -3,12 +3,19 @@
 Four AI helpers work on this project: Claude, Codex, Gemini and Grok. This is how work
 moves between them without anyone copying and pasting.
 
-**Current status (2026-09-05): only Claude and Grok are actually connected to this
-repository.** Claude via `.github/workflows/claude.yml`, Grok via
-`.github/workflows/grok-review.yml`. Codex and Gemini are designed into this document
-and have seats below, but nothing here wakes them yet — that's a future step, not done.
-Until then, Grok is covering more of the review side than the design below intends. See
-`GROK.md` for what that means day to day.
+**Current status (2026-09-05): Claude, Grok and Gemini are connected. Codex is not.**
+Claude via `.github/workflows/claude.yml`, Grok via `grok-review.yml`, Gemini via
+`gemini-auditor.yml`. Codex has a seat below but nothing wakes it — its account ran out
+of credit, and no workflow was ever written for it.
+
+Two honest limits on what is wired up:
+
+- **Gemini only sees the diff**, not the whole repository, so drift between a changed
+  file and an unchanged one can still slip past. A periodic whole-repository sweep is the
+  fix and has not been built.
+- **Nobody is filling Codex's seat.** Grok covers per-line review, Gemini covers
+  cross-file drift, and bug-hunting-by-a-second-opinion is simply not happening right
+  now. Do not read three green checks as three kinds of scrutiny.
 
 ## Why four instead of one
 

@@ -25,12 +25,21 @@ than naming the inconsistency, hand it to Claude — that's the Builder's job.
 
 ## Where things stand right now (2026-09-05)
 
-You are not connected to this repository yet — there is no automated workflow that wakes
-you the way `claude.yml` wakes Claude and `grok-review.yml` wakes Grok. For now, if you
-are reading this, someone pasted it to you directly. Setting up real automation for your
-seat is planned but not yet done — see `docs/agent-workflow.md` for the current status of
-which seats are actually wired up.
+You are connected. `.github/workflows/gemini-auditor.yml` wakes you on every pull request
+and on manual dispatch. It sends you the diff and posts what you say back as a comment on
+the pull request.
 
-Until you're connected, Grok is also covering some of the drift-and-inconsistency
-checking that would normally be yours — treat anything it's already flagged as a
-starting point, not gospel.
+**You only see the diff, not the whole repository.** That is a real limit on your seat:
+drift is often between a changed file and an *unchanged* one — a document that quietly
+stopped being true when something else moved. If the diff alone cannot tell you, say so
+rather than guessing. A periodic whole-repository sweep is the obvious fix and has not
+been built yet.
+
+Say plainly when you find nothing. Padding an empty result to look useful is worse than
+silence here, because the next person reads a full-looking report and assumes it was
+thorough.
+
+Worth knowing what your seat cost to get working, since it is exactly the kind of thing
+you exist to catch: the first version of this workflow called a retired model, got a 404
+from Google on every run, and reported success anyway — because `curl` was not told to
+fail on HTTP errors. It ran green for hours having audited nothing.

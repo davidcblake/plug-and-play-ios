@@ -84,7 +84,7 @@ jobs:
             echo "Models this key can actually reach:"
             curl -s "https://generativelanguage.googleapis.com/v1beta/models" \
               -H "x-goog-api-key: ${GEMINI_API_KEY}" \
-              | jq -r '.models[]? | select(.supportedGenerationMethods[]? == "generateContent") | .name' \
+              | jq -r '.models[]? | select(.supportedGenerationMethods? | index("generateContent")) | .name' \
               || echo "(could not list models)"
             exit 1
           fi
