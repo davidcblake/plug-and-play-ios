@@ -1,0 +1,31 @@
+name: Gemini Auditor
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gemini Auditor
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          curl -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "contents": [{
+              "parts": [{
+                "text": "You are acting as the Auditor per GEMINI.md and AGENTS.md. Review the recent repository changes for cross-file drift, internal inconsistencies, and Apple HIG/SDK compliance."
+              }]
+            }]
+          }'
