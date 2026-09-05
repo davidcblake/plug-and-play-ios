@@ -3,5 +3,5 @@ import Testing
 
 @Test("PPOnboard compiles and can be imported")
 func moduleLoads() {
-    #expect(true)
+    #expect(Bool(true))
 }
