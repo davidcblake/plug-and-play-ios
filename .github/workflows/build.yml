@@ -54,6 +54,13 @@ jobs:
             -destination "id=${{ steps.simulator.outputs.udid }}" \
             -resultBundlePath TestResults.xcresult
 
+      # Only on failure. A missing or renamed scheme produces an error that
+      # reads like a broken package, so show what schemes actually exist —
+      # but not on every green run, since resolving the graph is not free.
+      - name: What schemes does this package have?
+        if: failure()
+        run: xcodebuild -list -json || true
+
       - name: Keep the result bundle when something fails
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
