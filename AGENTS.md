@@ -140,10 +140,18 @@ a reason, not by quietly building something different.
 *Every time something costs more than an hour to figure out, it gets written down here so
 nobody pays for it twice. Add to this list. Never delete from it.*
 
-- **CI builds this package for macOS 14, not iOS 18.** `swift build` / `swift test` on
-  the macOS runner compile for the *host*, and the run reports
-  `Target Platform: arm64e-apple-macos14.0` even though `Package.swift` declares
-  `.iOS(.v18)`. So anything introduced in iOS 18 / macOS 15 will not compile in CI:
-  SwiftUI's `@Entry` macro and `Synchronization.Mutex` are the two that bite first. Use
-  an explicit `EnvironmentKey` and `os.OSAllocatedUnfairLock` instead, or move testing
-  onto an iOS simulator destination, which is the real fix and a bigger job.
+- **`swift build` on CI compiles for macOS, not iOS — and you must declare the macOS
+  minimum or nothing modern compiles.** The runner is a Mac, so SwiftPM builds for the
+  *host*. If `Package.swift` lists only `.iOS(.v18)`, SwiftPM falls back to a default
+  macOS deployment target old enough that SwiftUI (`View`, `EnvironmentValues`, macOS
+  10.15), `os.Logger` (11.0) and `OSAllocatedUnfairLock` (13.0) all fail with "only
+  available in macOS X or newer" — even though none of that code will ever run on a Mac.
+  The fix in place is `.macOS(.v15)` in `platforms`, paired with the iOS minimum so an
+  API that is fine on iOS is not rejected by the CI build. It is a build-configuration
+  entry, not a change to the iPhone-only product decision (0004).
+  The better long-term fix is to test against an iOS simulator destination with
+  `xcodebuild` instead of `swift test` — that tests the platform we actually ship. It is
+  a bigger job and has not been done.
+  Do not trust the `Target Platform:` line Swift Testing prints at *run* time as evidence
+  of the *compile* deployment target. They are different numbers, and reading the run
+  line as the compile target is how this got recorded wrongly the first time.

@@ -45,12 +45,8 @@ public struct UnexpectedError: PPError {
     ) {
         self.userMessage = userMessage
         self.underlying = underlying
-        if let logMessage {
-            self.logMessage = logMessage
-        } else if let underlying {
-            self.logMessage = String(describing: underlying)
-        } else {
-            self.logMessage = userMessage
-        }
+        self.logMessage = logMessage
+            ?? underlying.map { String(describing: $0) }
+            ?? userMessage
     }
 }

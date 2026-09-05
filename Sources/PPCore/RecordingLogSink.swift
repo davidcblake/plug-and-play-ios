@@ -17,6 +17,10 @@ public final class RecordingLogSink: LogSink {
     }
 
     /// Everything written so far, oldest first.
+    ///
+    /// Hands back a copy on purpose. A test asserting against a snapshot that cannot
+    /// change underneath it is worth more than avoiding the copy, and test assertion
+    /// counts are never the thing that makes a suite slow.
     public var entries: [LogEntry] {
         storage.withLock { $0 }
     }

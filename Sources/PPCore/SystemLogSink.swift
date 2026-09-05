@@ -23,6 +23,11 @@ public struct SystemLogSink: LogSink {
     }
 
     public func write(_ entry: LogEntry) {
+        // A `Logger` is made per call rather than cached per category. It is a thin
+        // wrapper over a handle and cheap to create, and caching would mean a lock on
+        // the logging path — paying a synchronisation cost on every call to avoid an
+        // allocation cost on some of them. Revisit only with a profile showing this
+        // matters.
         let logger = Logger(subsystem: subsystem, category: entry.category)
         let message = entry.message
         switch entry.level {
