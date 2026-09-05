@@ -3,6 +3,13 @@
 Four AI helpers work on this project: Claude, Codex, Gemini and Grok. This is how work
 moves between them without anyone copying and pasting.
 
+**Current status (2026-09-05): only Claude and Grok are actually connected to this
+repository.** Claude via `.github/workflows/claude.yml`, Grok via
+`.github/workflows/grok-review.yml`. Codex and Gemini are designed into this document
+and have seats below, but nothing here wakes them yet — that's a future step, not done.
+Until then, Grok is covering more of the review side than the design below intends. See
+`GROK.md` for what that means day to day.
+
 ## Why four instead of one
 
 Not to divide the work up four ways. **Because they make different mistakes.**

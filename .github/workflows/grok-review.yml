@@ -1,0 +1,20 @@
+name: Grok Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Grok code review
+        uses: tarmojussila/xai-code-review@0a0ec8e6ae59ed29819ac73ba1b8a983f40ca255 # v0.1.0
+        with:
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          XAI_REVIEWER_NAME: "Grok (the Challenger)"
