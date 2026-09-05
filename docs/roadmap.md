@@ -14,7 +14,10 @@ Last updated: 2026-09-05
 - [x] `AGENTS.md`, `CLAUDE.md`, and the docs in this folder
 - [x] Decision records for the choices already made
 - [x] Build workflow that compiles and tests on a macOS runner — same run as above
-- [ ] Branch protection on `main` (see `docs/security.md`)
+- [x] Branch protection on `main` (see `docs/security.md`) — verified by a direct push
+      being rejected with `GH013: Repository rule violations found`, not by reading the
+      settings page. The first two attempts went straight through: the ruleset was
+      Active but its target branch list was empty, so it applied to nothing.
 
 **Done means:** an empty app can depend on this package and it compiles.
 
