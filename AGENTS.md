@@ -180,12 +180,24 @@ nobody pays for it twice. Add to this list. Never delete from it.*
   macOS deployment target old enough that SwiftUI (`View`, `EnvironmentValues`, macOS
   10.15), `os.Logger` (11.0) and `OSAllocatedUnfairLock` (13.0) all fail with "only
   available in macOS X or newer" — even though none of that code will ever run on a Mac.
-  The fix in place is `.macOS(.v15)` in `platforms`, paired with the iOS minimum so an
-  API that is fine on iOS is not rejected by the CI build. It is a build-configuration
+  `.macOS(.v15)` sits in `platforms` for this reason, paired with the iOS minimum so an
+  API that is fine on iOS is not rejected by a host build. It is a build-configuration
   entry, not a change to the iPhone-only product decision (0004).
-  The better long-term fix is to test against an iOS simulator destination with
-  `xcodebuild` instead of `swift test` — that tests the platform we actually ship. It is
-  a bigger job and has not been done.
+  **CI no longer builds this way** — it runs `xcodebuild` against an iOS simulator, which
+  tests the platform we actually ship. The macOS entry stays because a by-hand
+  `swift build` on a Mac is a useful few-second check and still compiles for the host.
   Do not trust the `Target Platform:` line Swift Testing prints at *run* time as evidence
   of the *compile* deployment target. They are different numbers, and reading the run
   line as the compile target is how this got recorded wrongly the first time.
+
+- **The package's aggregate Xcode scheme is `PlugAndPlay-Package`, not `PlugAndPlay`.**
+  Xcode generates one scheme per library product (`PPCore`, `PPData`, …) plus an
+  aggregate that builds them all, and the aggregate carries the `-Package` suffix. Using
+  the bare package name fails with *"The workspace named 'plug-and-play-ios' does not
+  contain a scheme named 'PlugAndPlay'"*, which reads like the package is broken rather
+  than like the name is wrong. `xcodebuild -list -json` prints the real list.
+
+- **Do not hard-code a simulator name in CI.** GitHub changes the device lineup between
+  runner images. The build workflow discovers the newest available iPhone simulator and
+  uses its UDID, so an image update cannot silently break the build with an error that
+  does not obviously mean "that iPhone no longer exists here".

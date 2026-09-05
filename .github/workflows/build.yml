@@ -19,6 +19,11 @@ jobs:
     # on Linux, so this has to run on a macOS runner even though Mac minutes
     # cost roughly ten times what Linux ones do. See docs/architecture.md.
     runs-on: macos-latest
+    # A hung simulator would otherwise hold a Mac runner for GitHub's six-hour
+    # default. At roughly ten times Linux cost, that is a bill rather than a
+    # delay. Thirty minutes is well clear of a normal run (about a minute today)
+    # while still capping the damage.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -29,8 +34,42 @@ jobs:
           swift --version
           xcodebuild -version
 
-      - name: Build
-        run: swift build
+      - name: Choose an iOS simulator
+        id: simulator
+        run: |
+          set -euo pipefail
+          UDID=$(xcrun simctl list devices available --json \
+            | python3 .github/scripts/choose-simulator.py)
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
 
-      - name: Test
-        run: swift test
+      # `swift build` compiles for the *host*, which is macOS — a platform none
+      # of this ever ships on. Building against an iOS simulator destination
+      # tests what the apps actually run on.
+      #
+      # The scheme is PlugAndPlay-Package: Xcode generates one scheme per
+      # library product plus an aggregate carrying the `-Package` suffix. The
+      # bare package name is not a scheme, and using it fails with "workspace
+      # does not contain a scheme named PlugAndPlay", which reads like the
+      # package is broken rather than like the name is wrong.
+      - name: Build and test on iOS
+        run: |
+          set -euo pipefail
+          xcodebuild test \
+            -scheme PlugAndPlay-Package \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            -resultBundlePath TestResults.xcresult
+
+      # Only on failure. A missing or renamed scheme produces an error that
+      # reads like a broken package, so show what schemes actually exist —
+      # but not on every green run, since resolving the graph is not free.
+      - name: What schemes does this package have?
+        if: failure()
+        run: xcodebuild -list -json || true
+
+      - name: Keep the result bundle when something fails
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: test-results
+          path: TestResults.xcresult
+          retention-days: 7
