@@ -19,26 +19,33 @@ import SwiftUI
 /// could plausibly work.
 public struct PPErrorView: View {
     let message: String
+    let symbolName: String
     let retryTitle: String
     let retry: (() -> Void)?
 
     /// - Parameters:
     ///   - error: The failure. Only its `userMessage` is ever shown.
+    ///   - symbolName: An SF Symbol for the kind of failure this is. The
+    ///     default suits most of them; a failure with an obvious cause is
+    ///     clearer with its own — `wifi.slash` when sharing needs a connection,
+    ///     `externaldrive.badge.xmark` when the phone is out of room.
     ///   - retryTitle: The words on the retry button. Translate before passing.
     ///   - retry: What trying again does, or `nil` when there is nothing to try.
     public init(
         error: any PPError,
+        symbolName: String = "exclamationmark.triangle",
         retryTitle: String = "Try again",
         retry: (() -> Void)? = nil
     ) {
         self.message = error.userMessage
+        self.symbolName = symbolName
         self.retryTitle = retryTitle
         self.retry = retry
     }
 
     public var body: some View {
         PPEmptyState(
-            symbolName: "exclamationmark.triangle",
+            symbolName: symbolName,
             title: message,
             action: retryAction
         )

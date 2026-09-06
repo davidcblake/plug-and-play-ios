@@ -34,6 +34,13 @@ public struct PPColor: ShapeStyle, Hashable, Sendable {
     ///     ignored, so write all six digits — `0xFFF` is not white here.
     ///   - dark: The same, for dark appearance.
     public init(light: UInt32, dark: UInt32) {
+        // Anything above six digits is a typo, and a silent one: the extra bits
+        // shift out during `channels(of:)` and the app draws a colour nobody
+        // chose. `assert` rather than `precondition` on purpose — this should
+        // stop whoever typed it, not crash an app in someone's hand over a
+        // colour.
+        assert(light <= 0xFFFFFF, "A color is six hex digits: \(String(light, radix: 16))")
+        assert(dark <= 0xFFFFFF, "A color is six hex digits: \(String(dark, radix: 16))")
         self.light = light
         self.dark = dark
     }

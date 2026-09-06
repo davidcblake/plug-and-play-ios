@@ -107,6 +107,14 @@ struct PPErrorViewTests {
         #expect(view.message.contains("SQLITE_FULL") == false)
     }
 
+    @Test("Uses a general failure symbol unless the caller knows better")
+    func symbolHasASensibleDefault() {
+        #expect(PPErrorView(error: StorageFull()).symbolName == "exclamationmark.triangle")
+        #expect(
+            PPErrorView(error: StorageFull(), symbolName: "wifi.slash").symbolName == "wifi.slash"
+        )
+    }
+
     @Test("Offers a way to try again only when there is one")
     func retryIsOptional() {
         let withoutRetry = PPErrorView(error: StorageFull())
