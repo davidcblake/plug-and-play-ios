@@ -56,7 +56,10 @@ Last updated: 2026-09-06
             `docs/decisions/0007-ppdesign-tokens-and-components.md`
 
       > ⚠️ **Nothing here has been looked at on a screen**, and these ticks mean the
-      > code and its tests are written and green on CI — nothing more. There is no app
+      > code and its tests are written and green on CI — nothing more. Green means
+      > 34 tests in 9 suites passing on an iOS simulator, PR #11
+      > (https://github.com/davidcblake/plug-and-play-ios/actions/runs/34012063063),
+      > with no compiler warnings from this module. There is no app
       > to run it in until the example host app exists, so no color, no spacing and no
       > component has been seen by a human eye, and there are no snapshot or rendering
       > tests. Treat the *look* as unverified while the *rules* — contrast, type
