@@ -30,19 +30,22 @@ public struct PPColor: ShapeStyle, Hashable, Sendable {
     public let dark: UInt32
 
     /// - Parameters:
-    ///   - light: Six hex digits, `0xRRGGBB`. Anything above the low 24 bits is
-    ///     ignored, so write all six digits — `0xFFF` is not white here.
+    ///   - light: Six hex digits, `0xRRGGBB`. Write all six — `0xFFF` is not
+    ///     white here, it is a dark blue.
     ///   - dark: The same, for dark appearance.
     public init(light: UInt32, dark: UInt32) {
-        // Anything above six digits is a typo, and a silent one: the extra bits
-        // shift out during `channels(of:)` and the app draws a colour nobody
-        // chose. `assert` rather than `precondition` on purpose — this should
-        // stop whoever typed it, not crash an app in someone's hand over a
-        // colour.
+        // More than six digits is a typo. It trips here during development —
+        // `assert` and not `precondition` on purpose: this should stop whoever
+        // typed it, not crash an app in someone's hand over a color.
         assert(light <= 0xFFFFFF, "A color is six hex digits: \(String(light, radix: 16))")
         assert(dark <= 0xFFFFFF, "A color is six hex digits: \(String(dark, radix: 16))")
-        self.light = light
-        self.dark = dark
+        // Held to six digits in every build, so that in a release build — where
+        // the assertion is gone — the stored value still equals the value that
+        // gets drawn. The extra bits shift out of `channels(of:)` either way,
+        // so the color painted is the low six digits regardless; without this,
+        // `hex(for:)` would report a number `color(for:)` does not paint.
+        self.light = light & 0xFFFFFF
+        self.dark = dark & 0xFFFFFF
     }
 
     /// The value this color takes in one appearance.
