@@ -3,9 +3,10 @@ import SwiftUI
 /// How far apart things sit. Every gap, inset and padding in these apps comes
 /// from here.
 ///
-/// It is a scale of four, not a free choice of number. The point is not the
-/// specific values — it is that a screen built by one person and a screen built
-/// by another line up, because neither of them typed `13`.
+/// It is five fixed steps, each a multiple of four, not a free choice of
+/// number. The point is not the specific values — it is that a screen built by
+/// one person and a screen built by another line up, because neither of them
+/// typed `13`.
 public enum PPSpacing {
     /// 4 — inside a single thing: a label and the number right under it.
     public static let extraSmall: CGFloat = 4
