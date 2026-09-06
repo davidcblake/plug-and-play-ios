@@ -1,4 +1,3 @@
-import Foundation
 import SwiftUI
 
 /// One number worth looking at, with the word for what it is.
@@ -58,7 +57,10 @@ public struct PPMetric: View {
         let parts: [String?] = [label, value, caption]
         return parts
             .compactMap { $0 }
-            .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+            // The same definition of blank as `PPCore`'s `nonBlank`, so the two
+            // modules cannot drift on what counts as nothing. A caption of
+            // three spaces is not worth reading out.
+            .filter { !$0.allSatisfy(\.isWhitespace) }
             .joined(separator: ", ")
     }
 }

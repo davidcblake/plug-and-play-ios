@@ -51,10 +51,13 @@ public struct PPButtonStyle: ButtonStyle {
                 .foregroundStyle(kind.labelColor(in: theme))
                 .padding(.horizontal, PPSpacing.medium)
                 .padding(.vertical, PPSpacing.small)
-                .frame(minHeight: PPSpacing.minimumTapTarget)
+                .frame(minHeight: PPButtonStyle.minimumHeight)
                 .background(
                     kind.fillColor(in: theme),
-                    in: RoundedRectangle(cornerRadius: PPRadius.medium, style: .continuous)
+                    in: RoundedRectangle(
+                        cornerRadius: PPButtonStyle.cornerRadius,
+                        style: .continuous
+                    )
                 )
                 // The whole rounded rectangle is tappable, including the padding
                 // around a short label. Without this, "OK" is a 20-point target.
@@ -70,6 +73,12 @@ public struct PPButtonStyle: ButtonStyle {
             return configuration.isPressed ? 0.85 : 1
         }
     }
+
+    /// The smallest a button is allowed to be, however short its label.
+    static var minimumHeight: CGFloat { PPSpacing.minimumTapTarget }
+
+    /// How rounded a button's corners are.
+    static var cornerRadius: CGFloat { PPRadius.medium }
 }
 
 extension PPButtonStyle.Kind {

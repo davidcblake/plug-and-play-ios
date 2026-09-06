@@ -27,6 +27,16 @@ struct PPButtonStyleTests {
         #expect(solid == [.prominent])
     }
 
+    @Test("A button measures itself from the shared scale, not from typed-in numbers")
+    func buttonUsesTheTokens() {
+        // Note what this does and does not prove. It proves the component reads
+        // the 44-point token rather than a number somebody typed. It does not
+        // prove the rendered button is 44 points tall — that needs a rendering
+        // test, which this module does not have.
+        #expect(PPButtonStyle.minimumHeight == PPSpacing.minimumTapTarget)
+        #expect(PPButtonStyle.cornerRadius == PPRadius.medium)
+    }
+
     @Test("Every button's words are readable on its own background")
     func everyKindIsReadable() {
         // The pairing most likely to be got wrong when an app changes its
