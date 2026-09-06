@@ -4,7 +4,7 @@
 as the work it describes. If this file says something is done, it is done — on a real
 device where that applies, not "the code is written."
 
-Last updated: 2026-09-05
+Last updated: 2026-09-06
 
 ## Phase 0 — Foundation skeleton ✅ done (2026-09-05)
 
@@ -38,7 +38,33 @@ Last updated: 2026-09-05
             `ConfigurationFeatureFlags` so a flag flips from a shipped setting with no
             server involved
 - [ ] `PPData` — SwiftData stack, `SyncProvider` protocol, CloudKit adapter, migrations
-- [ ] `PPDesign` — colors, typography, spacing, core components
+- [x] `PPDesign` — colors, typography, spacing, core components
+      - [x] Colors: `PPColor`, a light value and a dark value written as hex numbers,
+            usable anywhere SwiftUI takes a style; `PPTheme`, the eleven-color family
+            look, injected through the SwiftUI environment so an app changes its accent
+            and keeps the rest
+      - [x] Readability checked by machine, not by eye: every text color clears WCAG AA
+            against every surface it is drawn on, in both appearances, as a test
+      - [x] Typography: seven `PPTextStyle` values, each built on one of Apple's text
+            styles so text grows with the phone's type-size setting; monospaced digits on
+            the number style
+      - [x] Spacing: `PPSpacing` on a four-point grid, `PPRadius`, and Apple's 44-point
+            minimum tap target as a named constant
+      - [x] Components: `PPButtonStyle` (prominent, quiet, destructive), `PPCard`,
+            `PPEmptyState`, `PPErrorView`, `PPMetric`
+      - [x] Foundation test answered per piece, and what was left out, in
+            `docs/decisions/0007-ppdesign-tokens-and-components.md`
+
+      > ⚠️ **Nothing here has been looked at on a screen**, and these ticks mean the
+      > code and its tests are written and green on CI — nothing more. There is no app
+      > to run it in until the example host app exists, so no color, no spacing and no
+      > component has been seen by a human eye, and there are no snapshot or rendering
+      > tests. Treat the *look* as unverified while the *rules* — contrast, type
+      > scaling, tap targets — are tested.
+      >
+      > One string is English in the source: the "Try again" button on `PPErrorView`.
+      > Everything else shown is passed in by the app. Localization across the
+      > foundation is not started.
 
 **Done means:** a throwaway app can save something, close, reopen, and see it again —
 and the same record appears on a second device.

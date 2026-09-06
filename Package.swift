@@ -33,7 +33,7 @@ let package = Package(
         .testTarget(name: "PPCoreTests", dependencies: ["PPCore"]),
 
         .target(name: "PPDesign", dependencies: ["PPCore"]),
-        .testTarget(name: "PPDesignTests", dependencies: ["PPDesign"]),
+        .testTarget(name: "PPDesignTests", dependencies: ["PPDesign", "PPCore"]),
 
         .target(name: "PPData", dependencies: ["PPCore"]),
         .testTarget(name: "PPDataTests", dependencies: ["PPData"]),
