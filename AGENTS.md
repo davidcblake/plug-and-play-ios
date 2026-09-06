@@ -201,3 +201,23 @@ nobody pays for it twice. Add to this list. Never delete from it.*
   runner images. The build workflow discovers the newest available iPhone simulator and
   uses its UDID, so an image update cannot silently break the build with an error that
   does not obviously mean "that iPhone no longer exists here".
+
+- **An automated reviewer that re-runs on every push is a loop, and it will not stop on
+  its own.** `grok-review.yml` and `gemini-auditor.yml` fire on each push to a pull
+  request, so fixing a nit produces a fresh review, which produces a fresh nit. `PPDesign`
+  went five rounds this way (PR #11) *after* the code was already compiled, tested and
+  green. Two of those rounds produced a real improvement. The rest were points already
+  answered coming back a second and third time, a suggestion that would not have compiled,
+  and one confident "must fix" that was wrong — it quoted the very line that disproved it.
+  **Two rounds with a reviewer is enough.** A point raised a third time, or a round with
+  nothing new in it, means the loop has become the work: stop, say so in one line, and let
+  Dave decide. The six-round limit in `docs/agent-workflow.md` governs a job card moving
+  between seats; this is the same failure *inside* one pull request, where there is no
+  label to hand on and nothing stops it but somebody choosing to.
+
+- **Pushing while a build is running throws that build away.** `build.yml` sets
+  `cancel-in-progress: true`, so a second push cancels the first run mid-flight. Three
+  pushes in ten minutes on PR #11 killed two macOS runs at four and two minutes in, and
+  bought three rounds of review on code that had never once been compiled. Mac minutes
+  cost roughly ten times Linux ones. Batch the fixes, push once, and wait for the result
+  before pushing again — especially when the build is the only compiler you have.
