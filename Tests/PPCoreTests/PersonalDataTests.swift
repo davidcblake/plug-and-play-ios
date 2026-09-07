@@ -44,7 +44,10 @@ private struct Store: HoldsPersonalData {
 /// Locked the way everything else in this package is, rather than with
 /// `@unchecked Sendable`, which `AGENTS.md` forbids without a decision record —
 /// and which a test fixture is not a good enough reason to spend one on.
-private final class ErasedFlag {
+/// `Sendable` is spelled out because Swift infers it for structs and enums and
+/// **never for classes** — a final class with immutable, `Sendable` storage has
+/// to say so itself.
+private final class ErasedFlag: Sendable {
     private let state = OSAllocatedUnfairLock(initialState: false)
 
     var value: Bool { state.withLock { $0 } }
