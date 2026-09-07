@@ -111,7 +111,10 @@ and the same record appears on a second device.
             photo screen, including the one for somebody who said no
       - [x] Reasoning, including why the halves are split, in
             `docs/decisions/0015-ppinput-seams-before-implementations.md`
-      - [ ] Apple's live dictation (`SFSpeechRecognizer` + `AVAudioEngine`)
+      - [x] `readiness()` and `prepare()`, because the on-device language model is
+            downloaded on first use — the one moment dictation needs a network
+      - [ ] Apple's live dictation, on `SpeechAnalyzer` / `SpeechTranscriber` and marked
+            `@available(iOS 26, *)` — see `docs/decisions/0016-the-newer-speech-api.md`
       - [ ] Apple's on-device text recognition (Vision)
       - [ ] Real permission requests
 
