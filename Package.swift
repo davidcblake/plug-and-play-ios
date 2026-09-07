@@ -39,7 +39,7 @@ let package = Package(
         .testTarget(name: "PPDataTests", dependencies: ["PPData", "PPCore"]),
 
         .target(name: "PPAuth", dependencies: ["PPCore"]),
-        .testTarget(name: "PPAuthTests", dependencies: ["PPAuth"]),
+        .testTarget(name: "PPAuthTests", dependencies: ["PPAuth", "PPCore"]),
 
         .target(name: "PPPay", dependencies: ["PPCore"]),
         .testTarget(name: "PPPayTests", dependencies: ["PPPay"]),

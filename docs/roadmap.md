@@ -101,6 +101,17 @@ and the same record appears on a second device.
 ## Phase 2 — The pieces that involve Apple ⬜
 
 - [ ] `PPAuth` — Sign in with Apple
+      - [x] The seam: `Authentication`, `SignInState`, `SignedInPerson`, `AuthFailure`,
+            with `NoAuthentication` as the honest default
+      - [x] `InMemoryAuthentication`, which withholds the name after the first sign-in
+            exactly as Apple does, and can be revoked from outside —
+            `docs/decisions/0019-signing-in-is-optional.md`
+      - [ ] Apple's implementation — **blocked** on the Developer Program
+      - [ ] Keychain storage of the identifier (`docs/security.md` rule 2)
+
+      > ⚠️ **Nobody can sign in yet.** Every screen is buildable — signed out, signing in,
+      > cancelled, revoked — and none of them will do anything until there is an account
+      > and a device.
 - [ ] `PPNotify` — push and local notifications
 - [ ] `PPOnboard` — first-run and permission requests
 - [ ] `PPInput` — voice-to-text and photo capture
