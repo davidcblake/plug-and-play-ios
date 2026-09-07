@@ -12,10 +12,15 @@ native app because its own spec says no AI in version one, it needs no server, a
 person using it needs no sign-in — so it depends only on the parts of this foundation that
 are finished.
 
-**Spindle** — the scripture study companion, at `davidcblake/spindle`. Today it is Next.js
-+ Supabase + the Anthropic API on Vercel, as a PWA. It is *not* a candidate for a quick
-native rebuild: study generation needs a server holding an API key, which a phone cannot
-do. See "Spindle's shape" below.
+**Spindle** — the scripture study companion, at `davidcblake/spindle`, live as a PWA on
+Vercel. **It is being rebuilt native, and it goes first.** The native app is
+`davidcblake/spindle-ios`.
+
+The earlier version of this file said Spindle was "not a candidate for a quick native
+rebuild: study generation needs a server holding an API key, which a phone cannot do."
+The second half is true and the conclusion did not follow — **that server already exists
+and is running.** A native Spindle calls it. What that costs is written down properly in
+`davidcblake/spindle/docs/decisions/0001` and `0002` rather than guessed at here.
 
 **Dossier** is dead. It has an old Capacitor project at `~/dossier/ios`; ignore it.
 
@@ -74,17 +79,26 @@ they will be better decisions once one does. Nothing depends on them.
 
 ## The next piece of work
 
-**VEYA, in its own repository.** The foundation now has everything version one of it needs:
-storage, migrations, the design system, reminders, the input seams, and — as of today — a
-sync provider that can tell somebody whether iCloud is on. It depends on this package by a
-**tagged version**, never `main` (`AGENTS.md`), so this package needs a tag before the app
-can consume it.
+**Spindle for iPhone**, at `davidcblake/spindle-ios`. VEYA is parked — not cancelled, and
+`docs/first-app.md` still stands. Spindle went first because it is a product that already
+exists and has been used, so the questions it asks the foundation are real ones.
 
-Two things about VEYA that are settled and worth not re-deciding: the map question above is
-open and version one may simply not have a map, and family sharing waits on `0020`'s
-deletion question. One person, one trip, fully offline is a real product.
+Two decisions were made there today, both written down in `davidcblake/spindle`:
 
-The CloudKit sync provider is **done** — `docs/decisions/0022`. The thing that was worth
-knowing before starting it turned out to be the whole of its design: SwiftData exposes no
-sync progress, so `SyncStatus.activity` reports `.idle` and `lastSynced` stays `nil` rather
-than inventing either.
+- **The journal lives in iCloud and Spindle has no sign-in.** Nobody but Dave has a
+  journal today, so there was nothing to carry over — which removes the App Store account
+  deletion requirement, shrinks the privacy labels, and keeps a scripture journal off any
+  server we run.
+- **How the study API recognises a caller with no account is unsettled**, and it blocks
+  preparing a study. App Attest is recommended. The thing that made it urgent: the current
+  rate limit counts saved journal rows, so an app that saves locally does not weaken the
+  limit — it removes it, on an endpoint holding an Anthropic key.
+
+## Where the foundation stands
+
+`0.1.0` is tagged, on the merge of #28. It is the first version an app can depend on, and
+`spindle-ios` depends on it.
+
+A 0.x on purpose: the halves that need a device — the CloudKit call, Sign in with Apple,
+dictation, notifications — are all read and never run. **Spindle is what will run them**,
+which is the point of a first app and also where the time will go.
