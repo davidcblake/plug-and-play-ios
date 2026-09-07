@@ -83,6 +83,22 @@ they will be better decisions once one does. Nothing depends on them.
 `docs/first-app.md` still stands. Spindle went first because it is a product that already
 exists and has been used, so the questions it asks the foundation are real ones.
 
+The scaffold is there and **the build is green against `0.1.0`** — an app in its own
+repository, pinned to a tagged version, compiling against `PPCore`, `PPData` and
+`PPDesign`. That is the foundation's central claim tested by something that is not a demo.
+Nothing in the app works yet; `davidcblake/spindle-ios/docs/roadmap.md` is the status.
+
+**Three branches are waiting on Dave**, and none of them is code:
+
+- `claude/where-we-are-after-0.1.0` here — this file.
+- `claude/native-rebuild-decision` in `davidcblake/spindle` — decision records `0001` and
+  `0002`.
+- Nothing in `spindle-ios`; it is on `main` and green.
+
+**The one decision blocking real product work** is `0002`: how the study API recognises a
+caller with no account. App Attest is recommended. Until it is settled, *preparing a study*
+cannot be built, and that is the whole app.
+
 Two decisions were made there today, both written down in `davidcblake/spindle`:
 
 - **The journal lives in iCloud and Spindle has no sign-in.** Nobody but Dave has a
