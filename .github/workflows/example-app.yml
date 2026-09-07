@@ -1,0 +1,58 @@
+name: Example App
+
+# Proves the thing Phase 0 claimed and never checked: that an app can depend on
+# this package and build. Separate from `Build and Test` on purpose — that
+# workflow is the one that must never break, and this one installs a tool.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: example-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-example:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 1
+
+      # The Xcode project is generated rather than committed. Example/project.yml
+      # is the readable definition; see docs/decisions/0021-xcodegen.md.
+      - name: Generate the Xcode project
+        run: |
+          set -euo pipefail
+          brew install xcodegen
+          cd Example
+          xcodegen generate
+
+      - name: Choose an iOS simulator
+        id: simulator
+        run: |
+          set -euo pipefail
+          UDID=$(xcrun simctl list devices available --json \
+            | python3 .github/scripts/choose-simulator.py)
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      # Unsigned. This is a compile-and-launch check, not something anybody
+      # ships, so no certificates and no provisioning profiles are involved.
+      - name: Build the example app
+        run: |
+          set -euo pipefail
+          xcodebuild build \
+            -project Example/PlugAndPlayExample.xcodeproj \
+            -scheme PlugAndPlayExample \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: What schemes does the example have?
+        if: failure()
+        run: xcodebuild -list -project Example/PlugAndPlayExample.xcodeproj || true
