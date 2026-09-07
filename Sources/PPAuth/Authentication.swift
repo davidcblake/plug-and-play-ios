@@ -87,6 +87,8 @@ public struct NoAuthentication: Authentication {
 extension NoAuthentication: HoldsPersonalData {
     public var whatItHolds: String { "your sign-in" }
 
+    public func personalDataCount() async -> Int { 0 }
+
     public func erasePersonalData() async throws {
         try await deleteAccount()
     }

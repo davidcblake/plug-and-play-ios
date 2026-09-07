@@ -15,9 +15,20 @@
 /// job, not two.
 public protocol HoldsPersonalData: Sendable {
     /// What this holds, in the words a person would use — "your notes", "your
-    /// sign-in", "your photos". Shown when telling somebody what was deleted,
-    /// and shown again if part of it could not be.
+    /// sign-in", "your photos".
     var whatItHolds: String { get }
+
+    /// How many things about this person are held here. Zero means nothing is.
+    ///
+    /// Answers two questions with one method, which is why it exists at all:
+    ///
+    /// - **Before**, it is how somebody is told what they are about to lose.
+    ///   "487 entries going back to March" is a decision a person can actually
+    ///   make. "This cannot be undone" is a sentence they have learned to scroll
+    ///   past.
+    /// - **After**, it is the proof. A deletion that reports success without
+    ///   checking is trust without evidence.
+    func personalDataCount() async -> Int
 
     /// Delete everything about this person that this holds.
     ///
@@ -26,9 +37,20 @@ public protocol HoldsPersonalData: Sendable {
     func erasePersonalData() async throws
 }
 
+/// One place a person's data lives, and how much of it is there.
+public struct PersonalDataHolding: Sendable, Equatable {
+    public let whatItHolds: String
+    public let count: Int
+
+    public init(whatItHolds: String, count: Int) {
+        self.whatItHolds = whatItHolds
+        self.count = count
+    }
+}
+
 /// What actually happened when somebody asked to be forgotten.
 public struct ErasureReport: Sendable, Equatable {
-    /// What let go, by name.
+    /// What let go, by name — **and was checked afterwards**.
     public let erased: [String]
     /// What did not, by name. **Anything in here means the person is not
     /// deleted**, however small it looks.
@@ -47,21 +69,57 @@ public struct ErasureReport: Sendable, Equatable {
     public var isComplete: Bool { failed.isEmpty }
 }
 
+/// Remembers that somebody asked to be forgotten, across launches.
+///
+/// **This is what makes a half-finished deletion recoverable rather than
+/// merely reported.** A deletion interrupted by a dead network, or by the app
+/// being killed while it worked, otherwise leaves a person part-deleted for
+/// good — and they will never know, because from their side they already
+/// tapped the button and closed the app.
+///
+/// An app writes this down before it starts, and checks it on every launch.
+public protocol RemembersErasure: Sendable {
+    /// Whether somebody asked to be forgotten and it has not finished.
+    var isErasureUnfinished: Bool { get }
+    /// Somebody asked. Write it down before deleting anything.
+    func rememberErasureStarted()
+    /// It finished, completely and verified. Only then.
+    func rememberErasureFinished()
+}
+
 /// Forgetting somebody, across everything that remembers them.
 public enum PersonalData {
-    /// Ask everything holding this person's data to let go of it.
+    /// What would be deleted, so somebody can be told before they decide.
+    public static func summary(
+        of holders: [any HoldsPersonalData]
+    ) async -> [PersonalDataHolding] {
+        var holdings: [PersonalDataHolding] = []
+        for holder in holders {
+            holdings.append(
+                PersonalDataHolding(
+                    whatItHolds: holder.whatItHolds,
+                    count: await holder.personalDataCount()
+                )
+            )
+        }
+        return holdings
+    }
+
+    /// Ask everything holding this person's data to let go of it, and check
+    /// that it did.
     ///
     /// **Keeps going when one fails.** Stopping at the first failure leaves
     /// somebody half-deleted with no way of knowing which half, and the next
-    /// attempt starts from an unknown state. Everything is asked, and the
-    /// report says what happened.
+    /// attempt starts from an unknown state.
+    ///
+    /// **Checks afterwards.** A holder that returns without throwing but still
+    /// has something is counted as a failure, because it is one. This is the
+    /// difference between a deletion that was reported and one that happened.
     ///
     /// **Order matters and is the caller's to choose.** Put the thing that
     /// proves who somebody is *last*: revoking an identity first can take away
-    /// the access needed to delete the data it was protecting.
-    ///
-    /// - Parameter holders: Everywhere this person's data lives, in the order
-    ///   it should be let go of.
+    /// the access needed to delete the data it was protecting, and can stop the
+    /// person's other devices ever hearing that they asked.
     public static func erase(from holders: [any HoldsPersonalData]) async -> ErasureReport {
         var erased: [String] = []
         var failed: [String] = []
@@ -69,12 +127,47 @@ public enum PersonalData {
         for holder in holders {
             do {
                 try await holder.erasePersonalData()
-                erased.append(holder.whatItHolds)
+                if await holder.personalDataCount() == 0 {
+                    erased.append(holder.whatItHolds)
+                } else {
+                    failed.append(holder.whatItHolds)
+                }
             } catch {
                 failed.append(holder.whatItHolds)
             }
         }
 
         return ErasureReport(erased: erased, failed: failed)
+    }
+
+    /// The same, remembered across launches so an interrupted deletion can be
+    /// finished rather than abandoned.
+    ///
+    /// Written down **before** anything is deleted, and cleared only when
+    /// everything is verifiably gone.
+    public static func erase(
+        from holders: [any HoldsPersonalData],
+        remembering memory: any RemembersErasure
+    ) async -> ErasureReport {
+        memory.rememberErasureStarted()
+        let report = await erase(from: holders)
+        if report.isComplete {
+            memory.rememberErasureFinished()
+        }
+        return report
+    }
+
+    /// Finish a deletion that was interrupted, if there was one.
+    ///
+    /// Call on every launch. Does nothing when nobody is part-deleted, which is
+    /// almost always.
+    ///
+    /// - Returns: What happened, or `nil` when there was nothing to finish.
+    public static func finishInterruptedErasure(
+        of holders: [any HoldsPersonalData],
+        remembering memory: any RemembersErasure
+    ) async -> ErasureReport? {
+        guard memory.isErasureUnfinished else { return nil }
+        return await erase(from: holders, remembering: memory)
     }
 }

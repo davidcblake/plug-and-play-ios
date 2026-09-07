@@ -107,8 +107,11 @@ and the same record appears on a second device.
             exactly as Apple does, and can be revoked from outside —
             `docs/decisions/0019-signing-in-is-optional.md`
       - [x] Account deletion: `deleteAccount()`, plus `HoldsPersonalData` and
-            `PersonalData.erase(from:)` in `PPCore` so an app can forget somebody across
-            every module at once — `docs/decisions/0020-account-deletion.md`
+            `PersonalData` in `PPCore` so an app can forget somebody across every module
+            at once — counted before so a person knows what they are losing, checked
+            afterwards rather than trusted, and written down before it starts so an
+            interrupted deletion finishes on the next launch instead of leaving somebody
+            half-deleted — `docs/decisions/0020-account-deletion.md`
       - [ ] Apple's implementation, including revoking the token — **blocked** on the
             Developer Program
       - [ ] Keychain storage of the identifier (`docs/security.md` rule 2)

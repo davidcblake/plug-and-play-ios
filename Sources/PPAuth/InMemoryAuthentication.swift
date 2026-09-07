@@ -125,6 +125,12 @@ public final class InMemoryAuthentication: Authentication {
 extension InMemoryAuthentication: HoldsPersonalData {
     public var whatItHolds: String { "your sign-in" }
 
+    /// One if somebody is signed in, none if not — which is also the check
+    /// that proves the deletion happened.
+    public func personalDataCount() async -> Int {
+        state.isSignedIn ? 1 : 0
+    }
+
     public func erasePersonalData() async throws {
         try await deleteAccount()
     }

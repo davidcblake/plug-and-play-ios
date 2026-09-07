@@ -32,6 +32,31 @@ can catch that. Adding a store and adding it to deletion is one job, not two.
 to delete the data it was protecting — most obviously anything in their private CloudKit
 database. Delete what they wrote, then stop being able to recognise them.
 
+## Counted, not asserted
+
+A deletion that reports success without checking is trust without evidence. So
+`HoldsPersonalData` has to say **how much it holds**, and that one method answers two
+questions:
+
+- **Before**, it is how somebody is told what they are about to lose. "487 entries going
+  back to March" is a decision a person can actually make; "this cannot be undone" is a
+  sentence they have learned to scroll past.
+- **After**, it is the proof. A store that returns without throwing and still has
+  something is counted as a **failure**, because it is one.
+
+## Interrupted, not abandoned
+
+A deletion can die halfway — a dead network, or the app killed while it worked. From the
+person's side they already tapped the button and closed the app, so without help they stay
+part-deleted forever and never find out.
+
+So the request is written down **before** anything is deleted and cleared only when
+everything is verifiably gone, and an app checks on every launch. That is the difference
+between partial failure being *honestly reported* and being *actually recoverable*.
+
+The flag says only "somebody asked to be deleted", which is the opposite of a secret and
+needs to survive being killed mid-delete far more than it needs protecting.
+
 ## Partial failure is the dangerous case
 
 If the local store is cleared and the cloud copy is not, somebody believes they are gone
@@ -63,8 +88,11 @@ not recognise them. `InMemoryAuthentication` reproduces this.
 - **No grace period, no undo.** Deletion is immediate and final. A "you have thirty days
   to change your mind" flow means keeping data somebody asked to be rid of, which needs a
   better reason than convenience.
-- **No export before delete.** Somebody may reasonably want their journal before it goes.
-  Worth building; not required by Apple and not required to make deletion honest.
+- **No export before delete.** Somebody deleting a scripture journal is deleting years of
+  their own spiritual writing. Handing that to them first, as something readable, is the
+  right thing to do — and it is app-level work, because only the app knows what a readable
+  journal looks like. The count above is what makes the offer possible; the export itself
+  is not here.
 - **No Apple implementation**, per `0019` — revoking a token needs the Developer Program.
 
 ## The foundation test
