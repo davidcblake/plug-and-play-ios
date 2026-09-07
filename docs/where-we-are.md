@@ -74,7 +74,17 @@ they will be better decisions once one does. Nothing depends on them.
 
 ## The next piece of work
 
-The CloudKit sync provider in `PPData`. One thing to know before starting: **SwiftData does
-not expose sync progress.** Account status is knowable through `CKContainer` and is the
-part worth telling a person about; "currently syncing" may not be, and `SyncStatus.activity`
-should report `.idle` honestly rather than inventing something.
+**VEYA, in its own repository.** The foundation now has everything version one of it needs:
+storage, migrations, the design system, reminders, the input seams, and — as of today — a
+sync provider that can tell somebody whether iCloud is on. It depends on this package by a
+**tagged version**, never `main` (`AGENTS.md`), so this package needs a tag before the app
+can consume it.
+
+Two things about VEYA that are settled and worth not re-deciding: the map question above is
+open and version one may simply not have a map, and family sharing waits on `0020`'s
+deletion question. One person, one trip, fully offline is a real product.
+
+The CloudKit sync provider is **done** — `docs/decisions/0022`. The thing that was worth
+knowing before starting it turned out to be the whole of its design: SwiftData exposes no
+sync progress, so `SyncStatus.activity` reports `.idle` and `lastSynced` stays `nil` rather
+than inventing either.

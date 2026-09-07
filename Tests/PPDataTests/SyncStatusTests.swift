@@ -26,6 +26,9 @@ struct SyncStatusTests {
     func speaksUpWhenThePersonCanAct() {
         #expect(SyncStatus(availability: .notSignedIn).isWorthMentioning)
         #expect(SyncStatus(availability: .restricted).isWorthMentioning)
+        // The one somebody can clear in a minute in Settings, which makes it
+        // the most worth saying of the three.
+        #expect(SyncStatus(availability: .needsAttention).isWorthMentioning)
     }
 
     @Test("A failure is worth saying even when everything else looks fine")

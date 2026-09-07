@@ -26,12 +26,31 @@ import SwiftData
 public enum PPModelStore {
     /// Where the data lives, and whether it leaves the device.
     public enum Kind: Sendable, Equatable {
-        /// On the device, and mirrored to the person's own private iCloud.
+        /// On the device, and mirrored to the person's own private iCloud,
+        /// using whichever container the app's entitlements name.
         ///
-        /// The container comes from the app's entitlements. Naming a specific
-        /// container is not supported yet — that arrives with the CloudKit
-        /// work, where it can actually be tested against a real account.
+        /// Right for an app with exactly one container, which is nearly every
+        /// app. Use ``syncedTo(container:)`` when there is more than one.
+        ///
+        /// **CloudKit puts rules on the models, not just on this line.** A
+        /// synced store will refuse to open — at launch, on somebody's phone —
+        /// unless every stored property is optional or has a default value,
+        /// every relationship is optional and has an inverse, and nothing is
+        /// marked `@Attribute(.unique)`. CloudKit has no way to enforce a
+        /// unique value across devices that have not spoken to each other yet,
+        /// and no way to invent a value for a property added while a record
+        /// was sitting on a server. Nothing here can check that for you;
+        /// ``temporary`` will happily open a schema that ``synced`` rejects,
+        /// so test one screen against a synced store early rather than finding
+        /// out at submission.
         case synced
+        /// On the device, and mirrored to a CloudKit container you name, such
+        /// as `"iCloud.com.example.veya"`.
+        ///
+        /// For an app with more than one container, or one storing data in a
+        /// container that belongs to another app in the family. The same
+        /// CloudKit rules described on ``synced`` apply.
+        case syncedTo(container: String)
         /// On the device, and nowhere else. For an app that does not sync, or
         /// a person who has turned it off.
         case thisDeviceOnly
@@ -107,6 +126,8 @@ public enum PPModelStore {
         switch kind {
         case .synced:
             ModelConfiguration(schema: schema, cloudKitDatabase: .automatic)
+        case .syncedTo(let container):
+            ModelConfiguration(schema: schema, cloudKitDatabase: .private(container))
         case .thisDeviceOnly:
             ModelConfiguration(schema: schema, cloudKitDatabase: .none)
         case .temporary:

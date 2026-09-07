@@ -18,6 +18,14 @@ public enum SyncAvailability: Sendable, Equatable {
     /// An account exists but something outside the app forbids it: parental
     /// controls, a managed device, iCloud Drive switched off.
     case restricted
+    /// Signed in, and iCloud wants something before it will sync — usually a
+    /// password re-entered or new terms accepted.
+    ///
+    /// Separate from ``restricted`` because the person can fix this one, in
+    /// Settings, in about a minute. Telling them "your device forbids iCloud"
+    /// when the truth is "iCloud is waiting for you" sends them looking for a
+    /// setting that does not exist.
+    case needsAttention
     /// Nobody has asked yet. The state before the first check, not an error.
     case unknown
 }
@@ -27,6 +35,12 @@ public enum SyncActivity: Sendable, Equatable {
     /// Nothing to do. The normal state, and the one an app spends its life in.
     case idle
     /// Moving data, in one direction or both.
+    ///
+    /// **Nothing backed by SwiftData reports this**, because SwiftData does not
+    /// say what its mirroring is doing — see
+    /// `docs/decisions/0022-the-cloudkit-sync-provider.md`. It stays in the
+    /// vocabulary so that a fake can produce it, and so that a provider which
+    /// one day can know has the word already.
     case working
     /// The last attempt failed. Local data is untouched and still readable —
     /// this is worth showing quietly, never as something that blocks the app.
@@ -77,7 +91,7 @@ public struct SyncStatus: Sendable, Equatable {
     /// itself. Nothing here blocks a screen — the data is already on the phone.
     public var isWorthMentioning: Bool {
         switch availability {
-        case .notSignedIn, .restricted:
+        case .notSignedIn, .restricted, .needsAttention:
             return true
         case .ready, .turnedOff, .unknown:
             if case .failed = activity { return true }

@@ -1,5 +1,4 @@
 import Foundation
-import os
 
 /// A sync provider whose status you set yourself.
 ///
@@ -14,33 +13,19 @@ import os
 ///
 /// Safe to use from more than one task at a time.
 public final class InMemorySyncProvider: SyncProvider {
-    private struct State {
-        var status: SyncStatus
-        var listeners: [UUID: AsyncStream<SyncStatus>.Continuation]
-    }
-
-    private let state: OSAllocatedUnfairLock<State>
+    private let broadcaster: SyncStatusBroadcaster
 
     public init(status: SyncStatus = SyncStatus(availability: .ready, activity: .idle)) {
-        state = OSAllocatedUnfairLock(initialState: State(status: status, listeners: [:]))
+        broadcaster = SyncStatusBroadcaster(status)
     }
 
     public var status: SyncStatus {
-        state.withLock { $0.status }
+        broadcaster.current
     }
 
     /// Change what this provider reports, and tell everyone watching.
     public func update(to newStatus: SyncStatus) {
-        let listeners = state.withLock { state -> [AsyncStream<SyncStatus>.Continuation] in
-            state.status = newStatus
-            return Array(state.listeners.values)
-        }
-        // Yielded outside the lock. A continuation can run arbitrary code on
-        // the other end, and doing that while holding a lock is how a deadlock
-        // gets built by accident.
-        for listener in listeners {
-            listener.yield(newStatus)
-        }
+        broadcaster.update(to: newStatus)
     }
 
     /// Report that syncing failed, without disturbing the rest of the status.
@@ -51,16 +36,6 @@ public final class InMemorySyncProvider: SyncProvider {
     }
 
     public func statusUpdates() -> AsyncStream<SyncStatus> {
-        let id = UUID()
-        return AsyncStream { continuation in
-            let current = state.withLock { state -> SyncStatus in
-                state.listeners[id] = continuation
-                return state.status
-            }
-            continuation.yield(current)
-            continuation.onTermination = { [weak self] _ in
-                self?.state.withLock { $0.listeners[id] = nil }
-            }
-        }
+        broadcaster.updates()
     }
 }
