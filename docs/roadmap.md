@@ -54,20 +54,28 @@ Last updated: 2026-09-07
             `Kind.stored(at:)` — a store at a named file, which is the only way a
             migration can be tested at all. Reasoning in
             `docs/decisions/0009-migrations.md`
-      - [ ] CloudKit adapter — **blocked**, see below
+      - [x] CloudKit adapter: `CloudKitSyncProvider`, reporting whether syncing can
+            happen for this person from `CKContainer`'s account status, and asking
+            again whenever iCloud says the account changed. `SyncStatus.activity`
+            stays `.idle` and `lastSynced` stays `nil` because **SwiftData exposes no
+            sync progress** — reasoning, and the three tempting lies rejected, in
+            `docs/decisions/0022-the-cloudkit-sync-provider.md`
+      - [x] Naming a CloudKit container: `Kind.syncedTo(container:)`, which `0008`
+            deferred until there was an account to point it at
       - [ ] Sharing a record between people — **blocked**, see below
 
-      > ⚠️ **The half that decides whether data leaves the phone is untested.** Only
-      > `.temporary` and `.stored(at:)` are exercised by tests. `.synced` and
-      > `.thisDeviceOnly` need an Apple Developer account and CloudKit entitlements,
-      > which do not exist yet, so that code has been read and never run. Saving,
-      > reading, deleting, closing and reopening, and migrating between two shapes are
-      > all genuinely tested — on disk, not just in memory.
+      > ⚠️ **The line that actually calls CloudKit has still never run.** Every
+      > transition `CloudKitSyncProvider` makes is tested — each account status, an
+      > account changing underneath it, a check that fails — but a CI simulator has no
+      > iCloud account and no entitlement, so the call to `CKContainer` itself is read
+      > and not run. Same for opening a `.synced` or `.syncedTo` store: only
+      > `.temporary` and `.stored(at:)` are opened by tests. What *is* tested is that
+      > no store a test can build points at a real iCloud container.
       >
-      > The CloudKit adapter and sharing are **not started on purpose.** Both can be
-      > written today and verified by nobody, and `docs/decisions/0008` argues that
-      > designing a sharing API with nothing to test it against is how you invent a
-      > shape that does not fit. They wait for the developer account.
+      > **Sharing is blocked on a decision, not on an account.**
+      > `docs/decisions/0020` leaves it undecided what happens to a shared record when
+      > its owner deletes their account, and that has to be settled before anything
+      > that can share ships.
 - [x] `PPDesign` — colors, typography, spacing, core components
       - [x] Colors: `PPColor`, a light value and a dark value written as hex numbers,
             usable anywhere SwiftUI takes a style; `PPTheme`, the eleven-color family

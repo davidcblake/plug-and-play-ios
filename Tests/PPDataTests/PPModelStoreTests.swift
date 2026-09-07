@@ -78,3 +78,37 @@ struct PPModelStoreTests {
         #expect(try context.fetchCount(FetchDescriptor<Note>()) == 0)
     }
 }
+
+@Suite("What leaves the phone")
+struct PPModelStoreCloudKitTests {
+    private let schema = Schema([Note.self])
+
+    // A container that cannot be opened here — there is no iCloud account and
+    // no entitlement on a CI simulator — so what is checked is the one thing
+    // that decides where a person's data goes: which container the store is
+    // configured to sync to. Opening it is what needs a device, and that is
+    // recorded as untested in docs/roadmap.md rather than faked here.
+
+    @Test("A named container is the one the store is pointed at")
+    func namesTheContainer() {
+        let configuration = PPModelStore.configuration(
+            for: schema,
+            kind: .syncedTo(container: "iCloud.com.example.veya")
+        )
+
+        #expect(configuration.cloudKitContainerIdentifier == "iCloud.com.example.veya")
+    }
+
+    @Test("Nothing a test builds can reach somebody's real iCloud")
+    func storesThatMustNeverSync() {
+        // If this ever fails, a test run somewhere is writing to a real
+        // account, and an aeroplane is enough to make the suite red.
+        let file = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pp-\(UUID().uuidString).store")
+
+        for kind in [PPModelStore.Kind.thisDeviceOnly, .temporary, .stored(at: file)] {
+            let configuration = PPModelStore.configuration(for: schema, kind: kind)
+            #expect(configuration.cloudKitContainerIdentifier == nil)
+        }
+    }
+}
