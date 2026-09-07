@@ -18,9 +18,10 @@ status is recorded.
 2. [`docs/architecture.md`](docs/architecture.md) — how it's built and why, in plain English.
 3. [`docs/roadmap.md`](docs/roadmap.md) — the plan and honest status.
 4. [`docs/first-app.md`](docs/first-app.md) — the travel app, the first real customer.
-5. [`docs/agent-workflow.md`](docs/agent-workflow.md) — how the four AI helpers work together.
-6. [`docs/security.md`](docs/security.md) — the rules that are binding, and Dave's checklist.
-7. [`docs/decisions/`](docs/decisions/) — why each significant choice was made.
+5. [`docs/where-we-are.md`](docs/where-we-are.md) — the current state, and the things decided in conversation that are written down nowhere else.
+6. [`docs/agent-workflow.md`](docs/agent-workflow.md) — how the four AI helpers work together.
+7. [`docs/security.md`](docs/security.md) — the rules that are binding, and Dave's checklist.
+8. [`docs/decisions/`](docs/decisions/) — why each significant choice was made.
 
 ## The shape of it
 
