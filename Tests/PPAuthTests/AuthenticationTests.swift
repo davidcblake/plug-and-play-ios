@@ -116,6 +116,68 @@ struct InMemoryAuthenticationTests {
     }
 }
 
+@Suite("Deleting an account")
+struct AccountDeletionTests {
+    @Test("Deleting signs them out and is not the same as signing out")
+    func deletingIsNotSigningOut() async throws {
+        let auth = InMemoryAuthentication()
+        _ = try await auth.signIn()
+
+        try await auth.deleteAccount()
+
+        #expect(auth.state == .signedOut)
+        #expect(auth.timesDeleted == 1)
+    }
+
+    @Test("Somebody who deletes and signs up again is a new person")
+    func deletingResetsTheFirstSignIn() async throws {
+        // Apple treats a revoked account as never having signed in, so the name
+        // arrives again — and an app that stored it under the old identifier
+        // will not recognise them. Worth knowing before it is a support email.
+        let auth = InMemoryAuthentication()
+        _ = try await auth.signIn()
+
+        try await auth.deleteAccount()
+        let afterSigningUpAgain = try await auth.signIn()
+
+        #expect(afterSigningUpAgain.name == "Dave")
+    }
+
+    @Test("A failed deletion must not look like a successful one")
+    func failedDeletionThrows() async throws {
+        let auth = InMemoryAuthentication(failsWith: .failed)
+
+        do {
+            try await auth.deleteAccount()
+            Issue.record("Deletion succeeded when it should have failed")
+        } catch let failure as AuthFailure {
+            #expect(failure == .failed)
+        }
+
+        #expect(auth.timesDeleted == 0)
+    }
+
+    @Test("Sign-in counts as somewhere a person's data lives")
+    func participatesInErasure() async throws {
+        // So an app can hand it to PPCore's eraser alongside its stores rather
+        // than remembering to delete the account separately.
+        let auth = InMemoryAuthentication()
+        _ = try await auth.signIn()
+
+        try await auth.erasePersonalData()
+
+        #expect(auth.whatItHolds == "your sign-in")
+        #expect(auth.timesDeleted == 1)
+    }
+
+    @Test("Deleting when nobody ever signed in succeeds rather than failing")
+    func deletingNothingIsFine() async throws {
+        // An app deleting everything should not fail because one of the things
+        // was already empty.
+        try await NoAuthentication().deleteAccount()
+    }
+}
+
 @Suite("An app that signs nobody in")
 struct NoAuthenticationTests {
     @Test("Is signed out and says signing in is not set up")

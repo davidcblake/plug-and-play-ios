@@ -1,4 +1,5 @@
 import Foundation
+import PPCore
 
 /// Signing in and out.
 ///
@@ -29,6 +30,26 @@ public protocol Authentication: Sendable {
     /// settings, not from inside it.
     func signOut() async
 
+    /// Delete this person's account and stop being able to recognise them.
+    ///
+    /// **Apple requires this** of any app offering account creation, and for
+    /// Sign in with Apple it means more than signing out: the token has to be
+    /// revoked, so Apple stops treating this person as a returning user of the
+    /// app. Signing out and calling it deletion is the thing that gets an app
+    /// rejected — and, worse, is a lie told to somebody who asked to be
+    /// forgotten.
+    ///
+    /// **This deletes the account, not the person's data.** Their notes live in
+    /// storage, not here. Deleting everything is the app's job, because only
+    /// the app knows every place it put something — see
+    /// ``PPCore/PersonalData/erase(from:)``, and do this one **last**, since
+    /// revoking an identity first can take away the access needed to delete
+    /// what it was protecting.
+    ///
+    /// - Throws: ``AuthFailure`` when the account could not be deleted. An app
+    ///   must not tell somebody they are gone when this throws.
+    func deleteAccount() async throws
+
     /// Ask whether this person is still really signed in.
     ///
     /// **Worth doing on launch.** Somebody can revoke an app from their Apple
@@ -54,5 +75,19 @@ public struct NoAuthentication: Authentication {
 
     public func signOut() async {}
 
+    public func deleteAccount() async throws {
+        // Nobody was ever signed in, so there is nothing to delete and nothing
+        // to lie about. Succeeding is correct: an app deleting everything
+        // should not fail because one of the things was already empty.
+    }
+
     public func refresh() async -> SignInState { .signedOut }
+}
+
+extension NoAuthentication: HoldsPersonalData {
+    public var whatItHolds: String { "your sign-in" }
+
+    public func erasePersonalData() async throws {
+        try await deleteAccount()
+    }
 }

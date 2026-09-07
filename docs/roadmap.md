@@ -106,7 +106,11 @@ and the same record appears on a second device.
       - [x] `InMemoryAuthentication`, which withholds the name after the first sign-in
             exactly as Apple does, and can be revoked from outside —
             `docs/decisions/0019-signing-in-is-optional.md`
-      - [ ] Apple's implementation — **blocked** on the Developer Program
+      - [x] Account deletion: `deleteAccount()`, plus `HoldsPersonalData` and
+            `PersonalData.erase(from:)` in `PPCore` so an app can forget somebody across
+            every module at once — `docs/decisions/0020-account-deletion.md`
+      - [ ] Apple's implementation, including revoking the token — **blocked** on the
+            Developer Program
       - [ ] Keychain storage of the identifier (`docs/security.md` rule 2)
 
       > ⚠️ **Nobody can sign in yet.** Every screen is buildable — signed out, signing in,

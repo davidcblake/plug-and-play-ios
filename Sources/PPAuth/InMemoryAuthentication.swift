@@ -1,4 +1,5 @@
 import Foundation
+import PPCore
 import os
 
 /// Signing in, faked, including the part Apple only does once.
@@ -16,6 +17,7 @@ public final class InMemoryAuthentication: Authentication {
         var state: SignInState
         var hasSignedInBefore: Bool
         var isRevoked: Bool
+        var timesDeleted = 0
     }
 
     private let person: SignedInPerson
@@ -78,6 +80,31 @@ public final class InMemoryAuthentication: Authentication {
         stored.withLock { $0.state = .signedOut }
     }
 
+    /// How many times the account has been deleted.
+    ///
+    /// Here so a test can prove an app actually called it, rather than signing
+    /// somebody out and telling them they were deleted.
+    public var timesDeleted: Int {
+        stored.withLock { $0.timesDeleted }
+    }
+
+    public func deleteAccount() async throws {
+        if let failure {
+            throw failure
+        }
+
+        stored.withLock {
+            $0.timesDeleted += 1
+            $0.state = .signedOut
+            // Deletion is not a sign-out. Somebody who deletes and signs up
+            // again is a new person as far as Apple is concerned, and gets
+            // their name back — which an app that stored it under the old
+            // identifier will not recognise.
+            $0.hasSignedInBefore = false
+            $0.isRevoked = true
+        }
+    }
+
     /// Pretend the person revoked this app from their Apple ID settings.
     ///
     /// There is no way to make this happen from inside an app, which is exactly
@@ -92,5 +119,13 @@ public final class InMemoryAuthentication: Authentication {
 
     public func refresh() async -> SignInState {
         stored.withLock { $0.isRevoked ? .signedOut : $0.state }
+    }
+}
+
+extension InMemoryAuthentication: HoldsPersonalData {
+    public var whatItHolds: String { "your sign-in" }
+
+    public func erasePersonalData() async throws {
+        try await deleteAccount()
     }
 }
