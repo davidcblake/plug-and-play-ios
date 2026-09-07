@@ -4,7 +4,7 @@
 as the work it describes. If this file says something is done, it is done — on a real
 device where that applies, not "the code is written."
 
-Last updated: 2026-09-06
+Last updated: 2026-09-07
 
 ## Phase 0 — Foundation skeleton ✅ done (2026-09-05)
 
@@ -38,6 +38,22 @@ Last updated: 2026-09-06
             `ConfigurationFeatureFlags` so a flag flips from a shipped setting with no
             server involved
 - [ ] `PPData` — SwiftData stack, `SyncProvider` protocol, CloudKit adapter, migrations
+      - [x] The store: `PPModelStore.container(for:kind:)`, handing back Apple's own
+            `ModelContainer`. `.synced`, `.thisDeviceOnly` and `.temporary`
+      - [x] The sync seam: `SyncProvider`, `SyncStatus`, `SyncFailure`, injected through
+            the SwiftUI environment; `NoSyncProvider` as the honest default and
+            `InMemorySyncProvider` so a test can produce signed-out and failing states
+      - [x] Reasoning, including why storage gets no protocol and sync does, in
+            `docs/decisions/0008-ppdata-stack-and-sync-seam.md`
+      - [ ] CloudKit adapter
+      - [ ] Sharing a record between people
+      - [ ] Migrations
+
+      > ⚠️ **The half that decides whether data leaves the phone is untested.** Only
+      > `.temporary` is exercised by a test. `.synced` and `.thisDeviceOnly` need an
+      > Apple Developer account and CloudKit entitlements, which do not exist yet, so
+      > that code has been read and never run. Saving, reading and deleting locally are
+      > genuinely tested.
 - [x] `PPDesign` — colors, typography, spacing, core components
       - [x] Colors: `PPColor`, a light value and a dark value written as hex numbers,
             usable anywhere SwiftUI takes a style; `PPTheme`, the eleven-color family
