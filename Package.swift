@@ -51,7 +51,7 @@ let package = Package(
         .testTarget(name: "PPInputTests", dependencies: ["PPInput", "PPCore"]),
 
         .target(name: "PPOnboard", dependencies: ["PPCore"]),
-        .testTarget(name: "PPOnboardTests", dependencies: ["PPOnboard"]),
+        .testTarget(name: "PPOnboardTests", dependencies: ["PPOnboard", "PPCore"]),
     ],
     swiftLanguageModes: [.v6]
 )
