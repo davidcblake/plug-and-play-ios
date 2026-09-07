@@ -84,4 +84,7 @@ building the seam first, and it is smaller than the risk of building both blind.
 
 - There is a Mac and a device, at which point the implementations get written and this
   record gets an amendment saying how well the seams held.
-- The deployment minimum rises past iOS 18 and the newer speech API becomes available.
+
+*Amended 2026-09-07 — the section above assumed the newer speech API needed the
+deployment minimum raised. It does not. See `docs/decisions/0016-the-newer-speech-api.md`
+for what changed, including the one thing the newer API forced into the seam.*

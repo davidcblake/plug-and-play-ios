@@ -20,20 +20,30 @@ public final class InMemoryTranscriber: Transcriber {
     private struct State {
         var isListening = false
         var timesStopped = 0
+        var timesPrepared = 0
+        var readiness: TranscriberReadiness
     }
 
     private let phrases: [String]
     private let failure: InputFailure?
-    private let state = OSAllocatedUnfairLock(initialState: State())
+    private let state: OSAllocatedUnfairLock<State>
 
     /// - Parameters:
     ///   - phrases: What it hears, in order. The last one is the final
     ///     transcript; everything before it is a guess along the way.
     ///   - failure: When set, starting throws this instead of listening —
     ///     which is how the "you said no to the microphone" screen gets built.
-    public init(hears phrases: [String] = [], failsWith failure: InputFailure? = nil) {
+    ///   - readiness: Where it starts. Use ``TranscriberReadiness/needsPreparing``
+    ///     to build the first-run screen, which is otherwise reachable exactly
+    ///     once per device and impossible to get back to.
+    public init(
+        hears phrases: [String] = [],
+        failsWith failure: InputFailure? = nil,
+        readiness: TranscriberReadiness = .ready
+    ) {
         self.phrases = phrases
         self.failure = failure
+        state = OSAllocatedUnfairLock(initialState: State(readiness: readiness))
     }
 
     /// Whether it is listening right now.
@@ -48,6 +58,28 @@ public final class InMemoryTranscriber: Transcriber {
     /// is here so a test can prove the view remembered.
     public var timesStopped: Int {
         state.withLock { $0.timesStopped }
+    }
+
+    /// How many times it has been asked to fetch its language model.
+    ///
+    /// Fetching twice is a wasted download on somebody's cellular connection,
+    /// so this is here for a test to prove it happened once.
+    public var timesPrepared: Int {
+        state.withLock { $0.timesPrepared }
+    }
+
+    public func readiness() async -> TranscriberReadiness {
+        state.withLock { $0.readiness }
+    }
+
+    public func prepare() async throws {
+        if let failure {
+            throw failure
+        }
+        state.withLock {
+            $0.timesPrepared += 1
+            $0.readiness = .ready
+        }
     }
 
     public func startDictation() async throws -> AsyncStream<Transcript> {
