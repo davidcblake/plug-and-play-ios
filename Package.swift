@@ -45,7 +45,7 @@ let package = Package(
         .testTarget(name: "PPPayTests", dependencies: ["PPPay"]),
 
         .target(name: "PPNotify", dependencies: ["PPCore"]),
-        .testTarget(name: "PPNotifyTests", dependencies: ["PPNotify"]),
+        .testTarget(name: "PPNotifyTests", dependencies: ["PPNotify", "PPCore"]),
 
         .target(name: "PPInput", dependencies: ["PPCore"]),
         .testTarget(name: "PPInputTests", dependencies: ["PPInput", "PPCore"]),
