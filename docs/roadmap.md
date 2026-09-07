@@ -105,6 +105,24 @@ and the same record appears on a second device.
 ## Phase 2 — The pieces that involve Apple ⬜
 
 - [ ] `PPAuth` — Sign in with Apple
+      - [x] The seam: `Authentication`, `SignInState`, `SignedInPerson`, `AuthFailure`,
+            with `NoAuthentication` as the honest default
+      - [x] `InMemoryAuthentication`, which withholds the name after the first sign-in
+            exactly as Apple does, and can be revoked from outside —
+            `docs/decisions/0019-signing-in-is-optional.md`
+      - [x] Account deletion: `deleteAccount()`, plus `HoldsPersonalData` and
+            `PersonalData` in `PPCore` so an app can forget somebody across every module
+            at once — counted before so a person knows what they are losing, checked
+            afterwards rather than trusted, and written down before it starts so an
+            interrupted deletion finishes on the next launch instead of leaving somebody
+            half-deleted — `docs/decisions/0020-account-deletion.md`
+      - [ ] Apple's implementation, including revoking the token — **blocked** on the
+            Developer Program
+      - [ ] Keychain storage of the identifier (`docs/security.md` rule 2)
+
+      > ⚠️ **Nobody can sign in yet.** Every screen is buildable — signed out, signing in,
+      > cancelled, revoked — and none of them will do anything until there is an account
+      > and a device.
 - [ ] `PPNotify` — push and local notifications
       - [x] Local reminders: `Reminder`, `ReminderSchedule`, the `Reminders` seam,
             `NoReminders` as the honest default and `InMemoryReminders` so a test can see
