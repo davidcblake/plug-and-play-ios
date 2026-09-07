@@ -48,7 +48,7 @@ let package = Package(
         .testTarget(name: "PPNotifyTests", dependencies: ["PPNotify"]),
 
         .target(name: "PPInput", dependencies: ["PPCore"]),
-        .testTarget(name: "PPInputTests", dependencies: ["PPInput"]),
+        .testTarget(name: "PPInputTests", dependencies: ["PPInput", "PPCore"]),
 
         .target(name: "PPOnboard", dependencies: ["PPCore"]),
         .testTarget(name: "PPOnboardTests", dependencies: ["PPOnboard"]),
