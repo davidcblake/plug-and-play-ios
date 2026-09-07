@@ -103,6 +103,13 @@ and the same record appears on a second device.
 - [ ] `PPAuth` — Sign in with Apple
 - [ ] `PPNotify` — push and local notifications
 - [ ] `PPOnboard` — first-run and permission requests
+      - [x] `PermissionApproach` — what to *do* about a permission, not just where it
+            stands. One place decides, so four apps cannot each get it subtly wrong
+      - [x] `OnboardingProgress` with an in-memory fake and a real store that survives the
+            app closing, so the halfway-through screen is buildable
+      - [x] `PermissionStatus` moved to `PPCore`, since three modules need the words —
+            `docs/decisions/0017-shared-permission-vocabulary.md`
+      - [ ] Shared first-run screens, if any turn out to be shared rather than per-app
 - [ ] `PPInput` — voice-to-text and photo capture
       - [x] The seams: `Transcriber`, `TextRecognizer`, `InputPermissions`, injected
             through the SwiftUI environment, with inert `No…` defaults
