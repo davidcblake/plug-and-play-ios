@@ -45,15 +45,25 @@ Last updated: 2026-09-07
             `InMemorySyncProvider` so a test can produce signed-out and failing states
       - [x] Reasoning, including why storage gets no protocol and sync does, in
             `docs/decisions/0008-ppdata-stack-and-sync-seam.md`
-      - [ ] CloudKit adapter
-      - [ ] Sharing a record between people
-      - [ ] Migrations
+      - [x] Migrations: `container(for:migrationPlan:kind:)` passing SwiftData's own
+            `VersionedSchema` and `SchemaMigrationPlan` straight through, plus
+            `Kind.stored(at:)` — a store at a named file, which is the only way a
+            migration can be tested at all. Reasoning in
+            `docs/decisions/0009-migrations.md`
+      - [ ] CloudKit adapter — **blocked**, see below
+      - [ ] Sharing a record between people — **blocked**, see below
 
       > ⚠️ **The half that decides whether data leaves the phone is untested.** Only
-      > `.temporary` is exercised by a test. `.synced` and `.thisDeviceOnly` need an
-      > Apple Developer account and CloudKit entitlements, which do not exist yet, so
-      > that code has been read and never run. Saving, reading and deleting locally are
-      > genuinely tested.
+      > `.temporary` and `.stored(at:)` are exercised by tests. `.synced` and
+      > `.thisDeviceOnly` need an Apple Developer account and CloudKit entitlements,
+      > which do not exist yet, so that code has been read and never run. Saving,
+      > reading, deleting, closing and reopening, and migrating between two shapes are
+      > all genuinely tested — on disk, not just in memory.
+      >
+      > The CloudKit adapter and sharing are **not started on purpose.** Both can be
+      > written today and verified by nobody, and `docs/decisions/0008` argues that
+      > designing a sharing API with nothing to test it against is how you invent a
+      > shape that does not fit. They wait for the developer account.
 - [x] `PPDesign` — colors, typography, spacing, core components
       - [x] Colors: `PPColor`, a light value and a dark value written as hex numbers,
             usable anywhere SwiftUI takes a style; `PPTheme`, the eleven-color family
