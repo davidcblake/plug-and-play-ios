@@ -102,6 +102,19 @@ and the same record appears on a second device.
 
 - [ ] `PPAuth` — Sign in with Apple
 - [ ] `PPNotify` — push and local notifications
+      - [x] Local reminders: `Reminder`, `ReminderSchedule`, the `Reminders` seam,
+            `NoReminders` as the honest default and `InMemoryReminders` so a test can see
+            what an app scheduled
+      - [x] Two mistakes made impossible: duplicates (an id replaces rather than adds) and
+            silently losing reminders past Apple's limit of 64 —
+            `docs/decisions/0018-reminders-are-local.md`
+      - [ ] Actually telling iOS (`UNUserNotificationCenter`) — needs a device
+      - [ ] Push — **not started on purpose**; no planned app has yet named something that
+            has to be pushed rather than worked out by the phone
+
+      > ⚠️ **Nothing here has fired a real notification.** That needs a device and somebody
+      > waiting until tomorrow morning. What is tested is what an app scheduled and whether
+      > it made either of the two classic mistakes.
 - [ ] `PPOnboard` — first-run and permission requests
       - [x] `PermissionApproach` — what to *do* about a permission, not just where it
             stands. One place decides, so four apps cannot each get it subtly wrong
