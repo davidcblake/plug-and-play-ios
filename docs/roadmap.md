@@ -104,6 +104,24 @@ and the same record appears on a second device.
 - [ ] `PPNotify` — push and local notifications
 - [ ] `PPOnboard` — first-run and permission requests
 - [ ] `PPInput` — voice-to-text and photo capture
+      - [x] The seams: `Transcriber`, `TextRecognizer`, `InputPermissions`, injected
+            through the SwiftUI environment, with inert `No…` defaults
+      - [x] The fakes: `InMemoryTranscriber`, `InMemoryTextRecognizer`,
+            `InMemoryInputPermissions` — enough to build and test every dictation and
+            photo screen, including the one for somebody who said no
+      - [x] Reasoning, including why the halves are split, in
+            `docs/decisions/0015-ppinput-seams-before-implementations.md`
+      - [ ] Apple's live dictation (`SFSpeechRecognizer` + `AVAudioEngine`)
+      - [ ] Apple's on-device text recognition (Vision)
+      - [ ] Real permission requests
+
+      > ⚠️ **This module cannot yet hear anybody.** The seams and fakes are built and
+      > tested; nothing behind them talks to a microphone or a camera. That half needs a
+      > Mac and a device — a CI simulator has neither — so it waits rather than being
+      > written blind. An app can build every screen against the fakes today.
+      >
+      > Not blocked by the Apple Developer Program: Speech and Vision are free
+      > frameworks. Blocked only on having a device to verify against.
 
 **Done means:** each works on a physical device, not just in the simulator. Push
 notifications in particular cannot be verified in a simulator.
