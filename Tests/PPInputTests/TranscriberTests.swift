@@ -84,8 +84,72 @@ struct InMemoryTranscriberTests {
     }
 }
 
+@Suite("Getting ready to listen")
+struct TranscriberReadinessTests {
+    @Test("Ready by default, because that is every use after the first")
+    func readyUnlessToldOtherwise() async {
+        let readiness = await InMemoryTranscriber().readiness()
+
+        #expect(readiness == .ready)
+    }
+
+    @Test("Preparing fetches the language model once and then it is ready")
+    func preparingMakesItReady() async throws {
+        let transcriber = InMemoryTranscriber(hears: ["a note"], readiness: .needsPreparing)
+        let before = await transcriber.readiness()
+
+        try await transcriber.prepare()
+        let after = await transcriber.readiness()
+
+        #expect(before == .needsPreparing)
+        #expect(after == .ready)
+        #expect(transcriber.timesPrepared == 1)
+    }
+
+    @Test("Preparing something already ready does not fetch again")
+    func doesNotRefetch() async throws {
+        // A second download is somebody's cellular allowance spent on nothing.
+        let transcriber = InMemoryTranscriber()
+
+        try await transcriber.prepare()
+        let readiness = await transcriber.readiness()
+
+        #expect(readiness == .ready)
+        #expect(transcriber.timesPrepared == 1)
+    }
+
+    @Test("A model that cannot be fetched fails with something readable")
+    func preparingCanFail() async throws {
+        let transcriber = InMemoryTranscriber(
+            failsWith: .notPermitted,
+            readiness: .needsPreparing
+        )
+
+        do {
+            try await transcriber.prepare()
+            Issue.record("Preparing succeeded when it should have failed")
+        } catch let failure as InputFailure {
+            #expect(failure == .notPermitted)
+        }
+
+        // Still not ready, so an app cannot mistake a failed download for a
+        // working microphone.
+        let readiness = await transcriber.readiness()
+        #expect(readiness == .needsPreparing)
+    }
+}
+
 @Suite("An app that does not dictate")
 struct NoTranscriberTests {
+    @Test("Is unavailable rather than merely not ready")
+    func isUnavailableNotPending() async {
+        // The difference matters: "not ready" invites an app to show a
+        // "preparing" screen forever. "unavailable" tells it to stop offering.
+        let readiness = await NoTranscriber().readiness()
+
+        #expect(readiness == .unavailable)
+    }
+
     @Test("Says dictation is not set up rather than appearing to listen")
     func failsWithSomethingReadable() async throws {
         do {
