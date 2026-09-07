@@ -1,0 +1,55 @@
+# What the Xcode project is, in a file a person can read and a reviewer can
+# argue with. `xcodegen generate` turns this into PlugAndPlayExample.xcodeproj,
+# which is deliberately not committed — see docs/decisions/0021-xcodegen.md.
+name: PlugAndPlayExample
+
+options:
+  bundleIdPrefix: com.wpv
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+
+packages:
+  PlugAndPlay:
+    # The foundation itself, from the checkout rather than a tagged version.
+    # An app depends on a tag (decision 0004); this is not an app, it is the
+    # proof that the package can be depended on at all, so it wants whatever
+    # is on this branch.
+    path: ..
+
+targets:
+  PlugAndPlayExample:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+    dependencies:
+      - package: PlugAndPlay
+        product: PPCore
+      - package: PlugAndPlay
+        product: PPDesign
+      - package: PlugAndPlay
+        product: PPData
+      - package: PlugAndPlay
+        product: PPInput
+      - package: PlugAndPlay
+        product: PPNotify
+      - package: PlugAndPlay
+        product: PPOnboard
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.wpv.plugandplay.example
+        MARKETING_VERSION: "0.1"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        # Nothing here is signed. This app exists to prove the package can be
+        # built against and to put the design system in front of human eyes on
+        # a simulator; it is not something anybody ships.
+        CODE_SIGNING_ALLOWED: NO
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: P&P Example
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait

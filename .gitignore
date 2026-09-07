@@ -1,0 +1,6 @@
+
+# The Xcode project is generated from Example/project.yml by XcodeGen.
+# Committing it would mean reviewing a file nobody can read and resolving
+# merge conflicts in one — see docs/decisions/0021-xcodegen.md.
+Example/*.xcodeproj
+Example/Info.plist

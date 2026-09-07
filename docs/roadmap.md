@@ -21,10 +21,14 @@ Last updated: 2026-09-07
 
 **Done means:** an empty app can depend on this package and it compiles.
 
-> ⚠️ **This bar has not actually been met, and the checkboxes above overstate it.** Every
-> tick is real, but they were earned by CI compiling the *package*. No app has ever
-> depended on it. The host app in `Example/` is what will prove this; until it builds and
-> runs, treat Phase 0 as done-except-for-its-own-definition.
+> ⚠️ **This bar was not met for two days, and the checkboxes above overstated it.** Every
+> tick was real, but they were earned by CI compiling the *package*, and no app had ever
+> depended on it.
+>
+> `Example/` now does. It is generated from `Example/project.yml` by XcodeGen
+> (`docs/decisions/0021-xcodegen.md`) and built by the `Example App` workflow, which is
+> the first time anything has consumed this package — and the first time any of
+> `PPDesign` has been on a screen.
 
 ## Phase 1 — The pieces that hold data ⏳ in progress
 
@@ -179,5 +183,5 @@ fix the foundation rather than declaring victory.
 
 | Blocker | Blocks | Status |
 |---|---|---|
-| Apple Developer Program enrollment | Phases 2, 3, 4 | **Application submitted 2026-09-05.** Awaiting approval; timing is unpredictable and can take weeks |
+| ~~Apple Developer Program enrollment~~ | ~~Phases 2, 3, 4~~ | **Cleared 2026-09-07.** Enrolled as an individual, renewing September 2027. A development certificate and App IDs for Spindle and Dossier exist. No CloudKit containers yet, and no App ID for VEYA |
 | Small Business Program application | Phase 3 pricing | Not started |
