@@ -1,6 +1,6 @@
 # Where we are
 
-**Written 2026-09-07.** A snapshot for whoever picks this up next, human or AI. Read
+**Written 2026-09-07, updated 2026-10-08.** A snapshot for whoever picks this up next, human or AI. Read
 `AGENTS.md` first, then `docs/roadmap.md` for status. This file holds only the things that
 were decided in conversation and are not written down anywhere else.
 
@@ -79,36 +79,26 @@ they will be better decisions once one does. Nothing depends on them.
 
 ## The next piece of work
 
-**Spindle for iPhone**, at `davidcblake/spindle-ios`. VEYA is parked — not cancelled, and
-`docs/first-app.md` still stands. Spindle went first because it is a product that already
-exists and has been used, so the questions it asks the foundation are real ones.
+**Updated 2026-10-08.** **Spindle for iPhone**, at `davidcblake/spindle-ios`, now does
+everything the web app does, in code: choosing a passage, preparing a study, the journal,
+My Thoughts, Gospel Library links, Print / Save PDF, Settings and the welcome screen, and
+Plans. Dave chose to copy the web app first and evolve it after. 58 tests pass on CI
+against the foundation at `0.1.0`.
 
-The scaffold is there and **the build is green against `0.1.0`** — an app in its own
-repository, pinned to a tagged version, compiling against `PPCore`, `PPData` and
-`PPDesign`. That is the foundation's central claim tested by something that is not a demo.
-Nothing in the app works yet; `davidcblake/spindle-ios/docs/roadmap.md` is the status.
+**It has not yet run on a phone**, and preparing a study cannot work until four things
+only Dave can do are done — listed in order in `davidcblake/spindle-ios/docs/your-checklist.md`.
 
-**Three branches are waiting on Dave**, and none of them is code:
+The decision that blocked it is settled: **App Attest** (`0002` in `davidcblake/spindle`),
+with the API between phone and server in `0003` and the server's tables in `0004`. The
+server half is merged and deployed, switched off until its secret and Apple team ID are
+set.
 
-- `claude/where-we-are-after-0.1.0` here — this file.
-- `claude/native-rebuild-decision` in `davidcblake/spindle` — decision records `0001` and
-  `0002`.
-- Nothing in `spindle-ios`; it is on `main` and green.
+What comes after the phone: iCloud sync (needs the CloudKit container's exact name), then
+TestFlight (privacy policy drafted in spindle PR #5, App Store answers in
+`spindle-ios/docs/app-store.md`).
 
-**The one decision blocking real product work** is `0002`: how the study API recognises a
-caller with no account. App Attest is recommended. Until it is settled, *preparing a study*
-cannot be built, and that is the whole app.
-
-Two decisions were made there today, both written down in `davidcblake/spindle`:
-
-- **The journal lives in iCloud and Spindle has no sign-in.** Nobody but Dave has a
-  journal today, so there was nothing to carry over — which removes the App Store account
-  deletion requirement, shrinks the privacy labels, and keeps a scripture journal off any
-  server we run.
-- **How the study API recognises a caller with no account is unsettled**, and it blocks
-  preparing a study. App Attest is recommended. The thing that made it urgent: the current
-  rate limit counts saved journal rows, so an app that saves locally does not weaken the
-  limit — it removes it, on an endpoint holding an Anthropic key.
+**These pull requests were merged without the Codex/Grok review `AGENTS.md` asks for**,
+because Dave asked for speed. A review pass before TestFlight is owed.
 
 ## Where the foundation stands
 
