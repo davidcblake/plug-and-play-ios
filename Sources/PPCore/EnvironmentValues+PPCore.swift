@@ -18,6 +18,13 @@ private struct ConfigurationSourceKey: EnvironmentKey {
     static let defaultValue: any ConfigurationSource = EmptyConfiguration()
 }
 
+private struct ConnectivityKey: EnvironmentKey {
+    /// Assume there is a connection. Wrongly greying out a button a person
+    /// could have used is a worse way to be wrong than letting a request fail
+    /// and say so.
+    static let defaultValue: any Connectivity = AlwaysOnline()
+}
+
 private struct FeatureFlagsKey: EnvironmentKey {
     /// No overrides, so every flag sits at the default it was declared with.
     static let defaultValue: any FeatureFlagSource = DefaultFeatureFlags()
@@ -40,6 +47,12 @@ extension EnvironmentValues {
     public var featureFlags: any FeatureFlagSource {
         get { self[FeatureFlagsKey.self] }
         set { self[FeatureFlagsKey.self] = newValue }
+    }
+
+    /// Whether this part of the view tree can reach the internet.
+    public var connectivity: any Connectivity {
+        get { self[ConnectivityKey.self] }
+        set { self[ConnectivityKey.self] = newValue }
     }
 }
 
@@ -67,5 +80,13 @@ extension View {
     /// test with `InMemoryFeatureFlags`.
     public func featureFlags(_ source: any FeatureFlagSource) -> some View {
         environment(\.featureFlags, source)
+    }
+
+    /// Inject the connection for this view and everything below it.
+    ///
+    /// Call once at the app's root with a `SystemConnectivity`, or in a test
+    /// with an `InMemoryConnectivity` set to offline.
+    public func connectivity(_ connectivity: any Connectivity) -> some View {
+        environment(\.connectivity, connectivity)
     }
 }

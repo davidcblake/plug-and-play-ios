@@ -41,6 +41,17 @@ Last updated: 2026-09-07
       - [x] Feature flags: `FeatureFlagSource` seam, defaults carried by the flag,
             `ConfigurationFeatureFlags` so a flag flips from a shipped setting with no
             server involved
+      - [x] Knowing whether there is a connection: the `Connectivity` seam,
+            `SystemConnectivity` over `NWPathMonitor`, `InMemoryConnectivity` so the
+            "no connection" screen can be built and checked, and `AlwaysOnline` as the
+            default. **Extracted from Spindle for iPhone rather than invented here** —
+            it had already shipped there — which is the first time anything has come
+            back the other way. `docs/decisions/0023-knowing-whether-there-is-a-connection.md`
+
+            > `SystemConnectivity` itself is not tested: it would report whatever the
+            > CI runner's network is doing, which is a weather report rather than a
+            > test. The seam, the fake and the stream are tested; the real monitor is
+            > read and not run.
 - [ ] `PPData` — SwiftData stack, `SyncProvider` protocol, CloudKit adapter, migrations
       - [x] The store: `PPModelStore.container(for:kind:)`, handing back Apple's own
             `ModelContainer`. `.synced`, `.thisDeviceOnly` and `.temporary`
