@@ -139,6 +139,15 @@ final class ConnectivitySignal: Sendable {
         }
     }
 
+    /// A fresh stream for each caller, starting with the current answer.
+    ///
+    /// **The order of the two steps below is load-bearing.** Registering the
+    /// listener first and setting `onTermination` second looks like the window
+    /// for a leak, and is the opposite: setting `onTermination` on an
+    /// already-terminated continuation runs the handler immediately, so the
+    /// entry is removed. Doing it the other way round would remove an id that
+    /// has not been inserted yet and then insert it with nothing left to clean
+    /// it up, which is the leak this ordering avoids.
     func updates() -> AsyncStream<Bool> {
         let id = UUID()
         return AsyncStream { continuation in
